@@ -5,13 +5,48 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>PlayLinks Game</title>
     <style>
-      body { font-family: system-ui; max-width: 720px; margin: 40px auto; padding: 0 16px; }
-      .card { border: 1px solid #ddd; border-radius: 14px; padding: 16px; margin: 12px 0; }
-      button { padding: 12px 14px; border-radius: 12px; border: 1px solid #111; background: #111; color: #fff; cursor: pointer; }
-      button.secondary { background: #fff; color: #111; }
-      .muted { color: #666; }
-      .big { font-size: 22px; }
-      code { background: #f5f5f5; padding: 2px 6px; border-radius: 6px; }
+      body {
+        font-family: system-ui;
+        max-width: 720px;
+        margin: 40px auto;
+        padding: 0 16px;
+      }
+      .card {
+        border: 1px solid #ddd;
+        border-radius: 14px;
+        padding: 16px;
+        margin: 12px 0;
+      }
+      button {
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid #111;
+        background: #111;
+        color: #fff;
+        cursor: pointer;
+      }
+      button.secondary {
+        background: #fff;
+        color: #111;
+      }
+      .muted {
+        color: #666;
+      }
+      .big {
+        font-size: 22px;
+      }
+      code {
+        background: #f5f5f5;
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: 10px;
+      }
     </style>
   </head>
   <body>
@@ -21,8 +56,11 @@
     <div class="card">
       <p id="main" class="big">Opening…</p>
       <p id="sub" class="muted"></p>
-      <button id="share">Share / Pass Link</button>
-      <button id="refresh" class="secondary">Refresh Status</button>
+
+      <div class="row">
+        <button id="share">🔁 Pass it now</button>
+        <button id="refresh" class="secondary">Refresh</button>
+      </div>
     </div>
 
     <script>
@@ -37,83 +75,175 @@
 
       gidEl.textContent = gameId || "(missing)";
 
+      // ----------------------------
+      // Holder identity (anonymous)
+      // ----------------------------
       function getHolderId() {
         const key = "playlinks_holder_id";
         let v = localStorage.getItem(key);
         if (!v) {
-          v = "h_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+          v =
+            "h_" +
+            Math.random().toString(36).slice(2) +
+            Date.now().toString(36);
           localStorage.setItem(key, v);
         }
         return v;
       }
 
+      // ----------------------------
+      // Countdown (Update #1)
+      // ----------------------------
+      let countdownTimer = null;
+
+      function formatRemaining(ms) {
+        const s = Math.max(0, Math.floor(ms / 1000));
+        const hh = Math.floor(s / 3600);
+        const mm = Math.floor((s % 3600) / 60);
+        const ss = s % 60;
+        return `${hh}h ${mm}m ${ss}s`;
+      }
+
+      function startCountdown(expiresAt, hopCount) {
+        if (countdownTimer) clearInterval(countdownTimer);
+
+        function tick() {
+          const left = expiresAt - Date.now();
+          if (left <= 0) {
+            subEl.textContent = `Hops: ${hopCount} • ⏳ Ending…`;
+            clearInterval(countdownTimer);
+            countdownTimer = null;
+            // Auto-refresh to show result screen
+            refresh();
+            return;
+          }
+          subEl.textContent = `Hops: ${hopCount} • ⏳ Ends in ${formatRemaining(left)}`;
+        }
+
+        tick();
+        countdownTimer = setInterval(tick, 1000);
+      }
+
+      // ----------------------------
+      // Result UI (Update #3 + #4)
+      // ----------------------------
+      function showExpiredResult({ youAreHolderAtEnd, hopCount }) {
+        titleEl.textContent = "Game over";
+
+        if (youAreHolderAtEnd) {
+          mainEl.textContent = "🔥 You got burned. You were holding it at the end.";
+          subEl.textContent = `Damn. Pass it earlier next time 😈 • Total passes: ${hopCount ?? "—"}`;
+        } else {
+          mainEl.textContent = "😮‍💨 You survived. Someone else got burned.";
+          subEl.textContent = `Curiosity satisfied. Run it again? • Total passes: ${hopCount ?? "—"}`;
+        }
+      }
+
+      // ----------------------------
+      // Claim (auto-hold on open)
+      // ----------------------------
       async function claim() {
         if (!gameId) {
           titleEl.textContent = "Invalid link";
           mainEl.textContent = "Missing game id.";
+          subEl.textContent = "This link is incomplete.";
           return;
         }
 
         const holderId = getHolderId();
 
-        // Claim = you become the holder (this happens automatically on open)
         const res = await fetch(`${API}/game/${gameId}/claim`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ holderId }),
         });
-        const data = await res.json();
+
+        let data = {};
+        try {
+          data = await res.json();
+        } catch {
+          titleEl.textContent = "Error";
+          mainEl.textContent = "Bad response from server.";
+          subEl.textContent = "Try again in a moment.";
+          return;
+        }
 
         if (!data.ok) {
           titleEl.textContent = "Error";
           mainEl.textContent = "Could not load game.";
-          subEl.textContent = data.error || "";
+          subEl.textContent = data.error || "unknown_error";
           return;
         }
 
         if (data.expired) {
-          titleEl.textContent = "Game over";
-          mainEl.textContent = data.youWin ? "🏆 You were holding it at the end." : "💥 You were not holding it at the end.";
-          subEl.textContent = data.winnerHolderId ? `Winner holder id: ${data.winnerHolderId}` : "No winner recorded.";
+          // Backend returns: { expired: true, youWin: boolean, hopCount?: number }
+          showExpiredResult({
+            youAreHolderAtEnd: !!data.youWin,
+            hopCount: data.hopCount,
+          });
           return;
         }
 
         titleEl.textContent = "Hot Potato";
         mainEl.textContent = "🔥 You are holding it right now.";
-        subEl.textContent = `Hops: ${data.hopCount} • Ends: ${new Date(data.expiresAt).toLocaleString()}`;
+        startCountdown(data.expiresAt, data.hopCount);
       }
 
+      // ----------------------------
+      // Refresh status
+      // ----------------------------
       async function refresh() {
+        if (!gameId) return;
+
         const holderId = getHolderId();
-        const res = await fetch(`${API}/game/${gameId}/status?holderId=${encodeURIComponent(holderId)}`);
-        const data = await res.json();
+        const res = await fetch(
+          `${API}/game/${gameId}/status?holderId=${encodeURIComponent(holderId)}`
+        );
+
+        let data = {};
+        try {
+          data = await res.json();
+        } catch {
+          return;
+        }
 
         if (!data.ok) return;
 
         if (data.expired) {
-          titleEl.textContent = "Game over";
-          mainEl.textContent = data.youHold ? "🏆 You were holding it at the end." : "💥 You were not holding it at the end.";
-          subEl.textContent = data.winnerHolderId ? `Winner holder id: ${data.winnerHolderId}` : "No winner recorded.";
+          // Backend returns: { expired: true, youHold: boolean, hopCount: number }
+          showExpiredResult({
+            youAreHolderAtEnd: !!data.youHold,
+            hopCount: data.hopCount,
+          });
           return;
         }
 
         titleEl.textContent = "Hot Potato";
-        mainEl.textContent = data.youHold ? "🔥 You are holding it right now." : "😮 Someone else is holding it.";
-        subEl.textContent = `Hops: ${data.hopCount} • Ends: ${new Date(data.expiresAt).toLocaleString()}`;
+        mainEl.textContent = data.youHold
+          ? "🔥 You are holding it right now."
+          : "😮 Someone else is holding it.";
+
+        startCountdown(data.expiresAt, data.hopCount);
       }
 
+      // ----------------------------
+      // Pass it UX (Update #2)
+      // ----------------------------
       document.getElementById("share").onclick = async () => {
         const link = location.href;
         try {
           await navigator.clipboard.writeText(link);
-          subEl.textContent = "Link copied — paste it into your IG story to pass it.";
+          subEl.textContent =
+            "✅ Link copied. Instagram → Story → Paste (or Link sticker) to pass it.";
         } catch {
-          subEl.textContent = "Copy failed — manually copy the URL from the address bar.";
+          subEl.textContent =
+            "Copy failed — manually copy the URL from the address bar.";
         }
       };
 
       document.getElementById("refresh").onclick = refresh;
 
+      // Kick off
       claim();
     </script>
   </body>
