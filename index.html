@@ -1,82 +1,271 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+    />
     <title>PlayLinks</title>
     <style>
-      body { font-family: system-ui; max-width: 720px; margin: 40px auto; padding: 0 16px; }
-      .card { border: 1px solid #ddd; border-radius: 14px; padding: 16px; margin: 12px 0; }
-      button { padding: 12px 14px; border-radius: 12px; border: 1px solid #111; background: #111; color: #fff; cursor: pointer; }
-      button.secondary { background: #fff; color: #111; }
-      .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-      code { background: #f5f5f5; padding: 2px 6px; border-radius: 6px; }
-      input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ddd; }
-      .muted { color: #666; }
+      :root {
+        --bg: #070713;
+        --panel: rgba(255, 255, 255, 0.06);
+        --panel2: rgba(255, 255, 255, 0.04);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.58);
+        --neon1: #00f5ff;
+        --neon2: #ff2bd6;
+        --neon3: #b6ff3b;
+        --danger: #ff4d4d;
+        --shadow: 0 0 30px rgba(0, 245, 255, 0.12);
+      }
+
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        background: radial-gradient(1200px 800px at 20% 10%, rgba(255, 43, 214, 0.12), transparent 55%),
+                    radial-gradient(1000px 700px at 80% 20%, rgba(0, 245, 255, 0.12), transparent 55%),
+                    radial-gradient(900px 600px at 50% 100%, rgba(182, 255, 59, 0.08), transparent 55%),
+                    var(--bg);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* Mobile-first: treat as a "screen" */
+      .screen {
+        max-width: 440px;
+        margin: 0 auto;
+        padding: 18px 16px 22px;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 6px;
+      }
+      .brand h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.6px;
+      }
+      .tag {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .card {
+        background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 18px;
+        padding: 14px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .hero {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .heroTitle {
+        font-size: 20px;
+        margin: 0;
+        line-height: 1.2;
+      }
+      .heroSub {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      /* Cute mascot icon (same style as g.html) */
+      .miniMascot {
+        width: 62px;
+        height: 62px;
+        flex: 0 0 auto;
+        filter: drop-shadow(0 0 12px rgba(255, 43, 214, 0.25));
+      }
+
+      .btn {
+        width: 100%;
+        border: 0;
+        border-radius: 16px;
+        padding: 14px 14px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #061018;
+        background: linear-gradient(90deg, var(--neon1), var(--neon2));
+        box-shadow: 0 0 18px rgba(0,245,255,0.20);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .btn:active { transform: translateY(1px); }
+
+      .btnSecondary {
+        width: 100%;
+        border-radius: 16px;
+        padding: 14px 14px;
+        font-size: 15px;
+        font-weight: 700;
+        color: rgba(255,255,255,0.86);
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .row { display: flex; gap: 10px; }
+      .row .btnSecondary { width: auto; flex: 1; }
+
+      .input {
+        width: 100%;
+        padding: 14px 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(0,0,0,0.25);
+        color: rgba(255,255,255,0.92);
+        font-size: 13px;
+        outline: none;
+      }
+
+      .status {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .neonLabel {
+        font-size: 12px;
+        color: rgba(255,255,255,0.65);
+      }
+
+      /* Subtle ad area placeholder (not obvious) */
+      .quietSlot {
+        margin-top: auto;
+        height: 58px;
+        border-radius: 14px;
+        background: rgba(0,0,0,0.16);
+        border: 1px solid rgba(255,255,255,0.06);
+        opacity: 0.55;
+      }
+
+      .hint {
+        font-size: 11px;
+        color: rgba(255,255,255,0.5);
+        text-align: center;
+        margin-top: 2px;
+      }
     </style>
   </head>
   <body>
-    <h1>🎮 PlayLinks</h1>
-    <p class="muted">Create a game link and share it on your IG story.</p>
-
-    <div class="card">
-      <h2>🥔 Hot Potato</h2>
-      <p>Whoever is holding it when the timer ends gets burned (or wins—depends how we theme it).</p>
-      <div class="row">
-        <button id="createHot">Start Hot Potato</button>
+    <div class="screen">
+      <div class="brand">
+        <h1>PLAYLINKS</h1>
+        <div class="tag">IG story games</div>
       </div>
-    </div>
 
-    <div class="card">
-      <h2>🦠 Infection</h2>
-      <p class="muted">Coming next (same engine, different rules).</p>
-      <div class="row">
-        <button class="secondary" disabled>Start Infection (soon)</button>
+      <div class="card hero">
+        <!-- mini mascot -->
+        <svg class="miniMascot" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <radialGradient id="pSkin" cx="35%" cy="30%" r="70%">
+              <stop offset="0" stop-color="#ffd6a6" stop-opacity="1"/>
+              <stop offset="1" stop-color="#c98a3a" stop-opacity="1"/>
+            </radialGradient>
+            <linearGradient id="flame" x1="0" x2="1">
+              <stop offset="0" stop-color="#00f5ff"/>
+              <stop offset="0.5" stop-color="#ff2bd6"/>
+              <stop offset="1" stop-color="#ffcc33"/>
+            </linearGradient>
+          </defs>
+
+          <!-- flame -->
+          <path d="M60 10 C50 25,75 30,58 45 C45 58,55 70,60 74 C70 67,78 58,74 45 C70 33,85 28,78 15 C73 6,64 6,60 10Z"
+                fill="url(#flame)" opacity="0.9"/>
+          <!-- potato -->
+          <path d="M25 62 C24 35,48 24,69 28 C92 32,102 50,94 73 C86 96,58 103,40 93 C30 86,26 76,25 62Z"
+                fill="url(#pSkin)" stroke="rgba(255,255,255,0.10)" stroke-width="2"/>
+          <!-- face -->
+          <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,0.55)"/>
+          <circle cx="73" cy="66" r="5" fill="rgba(0,0,0,0.55)"/>
+          <path d="M53 78 C60 86,70 86,77 78" stroke="rgba(0,0,0,0.45)" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <!-- blush -->
+          <circle cx="43" cy="75" r="6" fill="#ff2bd6" opacity="0.18"/>
+          <circle cx="82" cy="75" r="6" fill="#00f5ff" opacity="0.18"/>
+        </svg>
+
+        <div>
+          <p class="heroTitle">Hot Potato 🔥</p>
+          <p class="heroSub">
+            Create a link, post it on your IG story.<br />
+            Whoever opens the latest link becomes the holder.
+          </p>
+        </div>
       </div>
-    </div>
 
-    <div class="card">
-      <h3>Your link</h3>
-      <input id="link" readonly placeholder="Create a game to get a link…" />
-      <div class="row" style="margin-top:10px;">
-        <button id="copy" class="secondary">Copy</button>
-        <a id="open" href="#" target="_blank" class="muted">Open</a>
+      <div class="card">
+        <button class="btn" id="createHot">Start Hot Potato</button>
+        <div style="height:10px"></div>
+        <button class="btnSecondary" disabled>Start Infection (soon)</button>
       </div>
-      <p id="status" class="muted"></p>
-    </div>
 
-    <script>
-      const API = "https://api.playlinks.games";
+      <div class="card">
+        <div class="neonLabel">Your game link</div>
+        <div style="height:8px"></div>
+        <input id="link" class="input" readonly placeholder="Tap Start to generate a link…" />
+        <div class="row" style="margin-top:10px;">
+          <button class="btnSecondary" id="copy">Copy</button>
+          <button class="btnSecondary" id="open">Open</button>
+        </div>
+        <div id="status" class="status"></div>
+        <div class="hint">Tip: Paste link into IG Story (Link sticker) to play.</div>
+      </div>
 
-      const linkEl = document.getElementById("link");
-      const statusEl = document.getElementById("status");
-      const openEl = document.getElementById("open");
+      <!-- subtle reserved area (future use) -->
+      <div class="quietSlot" aria-hidden="true"></div>
 
-      async function create(type) {
-        statusEl.textContent = "Creating…";
-        const res = await fetch(`${API}/game/create`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type, hours: 24 }),
-        });
-        const data = await res.json();
-        if (!data.ok) {
-          statusEl.textContent = "Error creating game.";
-          return;
+      <script>
+        const API = "https://api.playlinks.games";
+        const linkEl = document.getElementById("link");
+        const statusEl = document.getElementById("status");
+        const openBtn = document.getElementById("open");
+
+        async function create(type) {
+          statusEl.textContent = "Creating…";
+          const res = await fetch(`${API}/game/create`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type, hours: 24 }),
+          });
+          const data = await res.json();
+          if (!data.ok) {
+            statusEl.textContent = "Failed to create game. Try again.";
+            return;
+          }
+          linkEl.value = data.url;
+          openBtn.onclick = () => window.open(data.url, "_blank");
+          statusEl.textContent = `Created • Ends: ${new Date(data.expiresAt).toLocaleString()}`;
         }
-        linkEl.value = data.url;
-        openEl.href = data.url;
-        statusEl.textContent = `Created. Expires at: ${new Date(data.expiresAt).toLocaleString()}`;
-      }
 
-      document.getElementById("createHot").onclick = () => create("hotpotato");
+        document.getElementById("createHot").onclick = () => create("hotpotato");
 
-      document.getElementById("copy").onclick = async () => {
-        if (!linkEl.value) return;
-        await navigator.clipboard.writeText(linkEl.value);
-        statusEl.textContent = "Copied!";
-        setTimeout(() => (statusEl.textContent = ""), 1200);
-      };
-    </script>
+        document.getElementById("copy").onclick = async () => {
+          if (!linkEl.value) return;
+          await navigator.clipboard.writeText(linkEl.value);
+          statusEl.textContent = "Copied ✅";
+          setTimeout(() => (statusEl.textContent = ""), 1200);
+        };
+      </script>
+    </div>
   </body>
 </html>
