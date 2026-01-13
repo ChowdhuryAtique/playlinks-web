@@ -1,47 +1,333 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>PlayLinks Game</title>
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+    />
+    <title>Hot Potato • PlayLinks</title>
     <style>
-      body { font-family: system-ui; max-width: 720px; margin: 40px auto; padding: 0 16px; }
-      .card { border: 1px solid #ddd; border-radius: 14px; padding: 16px; margin: 12px 0; }
-      button { padding: 12px 14px; border-radius: 12px; border: 1px solid #111; background: #111; color: #fff; cursor: pointer; }
-      button.secondary { background: #fff; color: #111; }
-      button:disabled { opacity: 0.5; cursor: not-allowed; }
-      .muted { color: #666; }
-      .big { font-size: 22px; }
-      code { background: #f5f5f5; padding: 2px 6px; border-radius: 6px; }
-      .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+      :root {
+        --bg: #070713;
+        --panel: rgba(255, 255, 255, 0.06);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.58);
+        --neon1: #00f5ff;
+        --neon2: #ff2bd6;
+        --neon3: #b6ff3b;
+        --danger: #ff4d4d;
+        --shadow: 0 0 34px rgba(0, 245, 255, 0.14);
+      }
+
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        background: radial-gradient(1200px 800px at 25% 10%, rgba(255, 43, 214, 0.12), transparent 55%),
+                    radial-gradient(1000px 700px at 80% 25%, rgba(0, 245, 255, 0.12), transparent 55%),
+                    radial-gradient(900px 600px at 50% 100%, rgba(182, 255, 59, 0.08), transparent 55%),
+                    var(--bg);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* Mobile-first screen */
+      .screen {
+        max-width: 440px;
+        margin: 0 auto;
+        padding: 18px 16px 22px;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 6px;
+      }
+      .topbar .brand {
+        font-size: 14px;
+        letter-spacing: 1px;
+        opacity: 0.85;
+      }
+      .pill {
+        font-size: 11px;
+        color: rgba(255,255,255,0.72);
+        border: 1px solid rgba(255,255,255,0.10);
+        background: rgba(255,255,255,0.05);
+        padding: 7px 10px;
+        border-radius: 999px;
+      }
+
+      .card {
+        background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 18px;
+        padding: 14px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .title {
+        font-size: 22px;
+        margin: 2px 0 0;
+        letter-spacing: 0.2px;
+      }
+      .subtitle {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      /* Mascot + motion */
+      .mascotWrap {
+        display: grid;
+        place-items: center;
+        margin-top: 6px;
+      }
+      .mascot {
+        width: 168px;
+        height: 168px;
+        filter: drop-shadow(0 0 18px rgba(255, 43, 214, 0.25));
+        animation: floaty 3.4s ease-in-out infinite;
+      }
+      @keyframes floaty {
+        0% { transform: translateY(0px) rotate(-2deg); }
+        50% { transform: translateY(-8px) rotate(2deg); }
+        100% { transform: translateY(0px) rotate(-2deg); }
+      }
+      .flamePulse {
+        transform-origin: 60px 24px;
+        animation: flame 0.65s ease-in-out infinite;
+      }
+      @keyframes flame {
+        0% { opacity: 0.85; transform: scale(0.98); }
+        50% { opacity: 1; transform: scale(1.04); }
+        100% { opacity: 0.85; transform: scale(0.98); }
+      }
+
+      /* Big neon timer + passes */
+      .neonStatRow {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .stat {
+        flex: 1;
+        padding: 12px 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.10);
+        background: rgba(0,0,0,0.22);
+      }
+      .statLabel {
+        font-size: 11px;
+        color: rgba(255,255,255,0.55);
+        letter-spacing: 0.7px;
+      }
+      .timerValue {
+        margin-top: 6px;
+        font-weight: 900;
+        font-size: 22px;
+        letter-spacing: 0.2px;
+        color: var(--neon1);
+        text-shadow: 0 0 18px rgba(0,245,255,0.25);
+      }
+      .passesValue {
+        margin-top: 6px;
+        font-weight: 900;
+        font-size: 22px;
+        color: var(--neon2);
+        text-shadow: 0 0 18px rgba(255,43,214,0.22);
+      }
+
+      /* Buttons */
+      .btn {
+        width: 100%;
+        border: 0;
+        border-radius: 18px;
+        padding: 16px 14px;
+        font-size: 16px;
+        font-weight: 800;
+        color: #061018;
+        background: linear-gradient(90deg, var(--neon1), var(--neon2));
+        box-shadow: 0 0 20px rgba(0,245,255,0.20);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .btn:active { transform: translateY(1px); }
+      .btnSecondary {
+        width: 100%;
+        border-radius: 18px;
+        padding: 14px 14px;
+        font-size: 14px;
+        font-weight: 800;
+        color: rgba(255,255,255,0.86);
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .btn:disabled, .btnSecondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+      .smallNote {
+        margin-top: 10px;
+        color: rgba(255,255,255,0.56);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      /* subtle reserved area (future use) */
+      .quietSlot {
+        margin-top: auto;
+        height: 58px;
+        border-radius: 14px;
+        background: rgba(0,0,0,0.16);
+        border: 1px solid rgba(255,255,255,0.06);
+        opacity: 0.55;
+      }
+
+      /* IG in-app hint */
+      .igHint {
+        margin-top: 8px;
+        font-size: 11px;
+        color: rgba(255,255,255,0.50);
+        text-align: center;
+      }
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.72);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: rgba(255,255,255,0.92);
+        padding: 10px 12px;
+        border-radius: 14px;
+        font-size: 12px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        max-width: 92vw;
+        text-align: center;
+      }
+      .toast.show { opacity: 1; }
     </style>
   </head>
-  <body>
-    <h1 id="title">Loading…</h1>
-    <p class="muted">Game ID: <code id="gid"></code></p>
 
-    <div class="card">
-      <p id="main" class="big">Opening…</p>
-      <p id="sub" class="muted"></p>
-      <div class="row">
-        <button id="passBtn">🔁 Pass it now</button>
-        <button id="refresh" class="secondary">Refresh</button>
+  <body>
+    <div class="screen">
+      <div class="topbar">
+        <div class="brand">PLAYLINKS</div>
+        <div class="pill" id="gidPill">ID: …</div>
       </div>
+
+      <div class="card">
+        <div class="title" id="title">Loading…</div>
+        <div class="subtitle" id="main">Opening…</div>
+
+        <div class="mascotWrap">
+          <!-- Cute potato mascot (inline SVG so no assets needed) -->
+          <svg class="mascot" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <radialGradient id="pSkin2" cx="35%" cy="30%" r="70%">
+                <stop offset="0" stop-color="#ffd6a6"/>
+                <stop offset="1" stop-color="#c98a3a"/>
+              </radialGradient>
+              <linearGradient id="flame2" x1="0" x2="1">
+                <stop offset="0" stop-color="#00f5ff"/>
+                <stop offset="0.5" stop-color="#ff2bd6"/>
+                <stop offset="1" stop-color="#ffcc33"/>
+              </linearGradient>
+            </defs>
+
+            <!-- flame -->
+            <g class="flamePulse">
+              <path d="M60 8 C49 25,78 30,58 47 C45 60,55 72,60 76 C70 69,79 60,74 47 C69 34,86 29,78 14 C72 4,64 4,60 8Z"
+                    fill="url(#flame2)" opacity="0.95"/>
+              <path d="M60 18 C55 28,70 30,60 41 C52 50,56 57,60 60 C66 55,68 49,66 41 C64 33,72 30,69 22 C67 18,62 16,60 18Z"
+                    fill="#ffffff" opacity="0.18"/>
+            </g>
+
+            <!-- potato -->
+            <path d="M23 63 C22 35,47 22,70 27 C94 31,105 50,96 74 C87 99,57 106,38 95 C28 88,24 78,23 63Z"
+                  fill="url(#pSkin2)" stroke="rgba(255,255,255,0.10)" stroke-width="2"/>
+
+            <!-- speckles -->
+            <circle cx="39" cy="58" r="2" fill="rgba(0,0,0,0.12)"/>
+            <circle cx="82" cy="55" r="2" fill="rgba(0,0,0,0.12)"/>
+            <circle cx="70" cy="86" r="2" fill="rgba(0,0,0,0.10)"/>
+
+            <!-- face -->
+            <circle cx="50" cy="67" r="5" fill="rgba(0,0,0,0.55)"/>
+            <circle cx="74" cy="67" r="5" fill="rgba(0,0,0,0.55)"/>
+            <path d="M53 79 C60 88,71 88,78 79" stroke="rgba(0,0,0,0.45)" stroke-width="5" stroke-linecap="round" fill="none"/>
+            <circle cx="43" cy="76" r="6" fill="#ff2bd6" opacity="0.18"/>
+            <circle cx="84" cy="76" r="6" fill="#00f5ff" opacity="0.18"/>
+          </svg>
+        </div>
+
+        <div class="neonStatRow">
+          <div class="stat">
+            <div class="statLabel">TIMER</div>
+            <div class="timerValue" id="timer">—</div>
+          </div>
+          <div class="stat">
+            <div class="statLabel">PASSES</div>
+            <div class="passesValue" id="passes">—</div>
+          </div>
+        </div>
+
+        <div style="height: 12px"></div>
+
+        <button class="btn" id="passBtn">🔁 Pass it now</button>
+        <div style="height: 10px"></div>
+        <button class="btnSecondary" id="refreshBtn">Refresh</button>
+
+        <div class="smallNote" id="note"></div>
+        <div class="igHint" id="igHint"></div>
+      </div>
+
+      <!-- subtle reserved area (future use) -->
+      <div class="quietSlot" aria-hidden="true"></div>
     </div>
+
+    <div class="toast" id="toast"></div>
 
     <script>
       const API = "https://api.playlinks.games";
       const params = new URLSearchParams(location.search);
       const gameId = params.get("g");
-      const token = params.get("t"); // pass_token embedded in link
+      const token = params.get("t");
 
-      const gidEl = document.getElementById("gid");
+      const gidPill = document.getElementById("gidPill");
       const titleEl = document.getElementById("title");
       const mainEl = document.getElementById("main");
-      const subEl = document.getElementById("sub");
+      const timerEl = document.getElementById("timer");
+      const passesEl = document.getElementById("passes");
+      const noteEl = document.getElementById("note");
       const passBtn = document.getElementById("passBtn");
+      const refreshBtn = document.getElementById("refreshBtn");
+      const igHintEl = document.getElementById("igHint");
+      const toastEl = document.getElementById("toast");
 
-      gidEl.textContent = gameId || "(missing)";
+      gidPill.textContent = "ID: " + (gameId ? gameId : "—");
+
+      const isInstagram = /Instagram/i.test(navigator.userAgent);
+      if (isInstagram) {
+        igHintEl.textContent = "Tip: IG in-app browser sometimes blocks auto-share. Copy link → use Link sticker.";
+      }
+
+      function toast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add("show");
+        setTimeout(() => toastEl.classList.remove("show"), 1400);
+      }
 
       function getHolderId() {
         const key = "playlinks_holder_id";
@@ -68,38 +354,43 @@
 
         function tick() {
           const left = expiresAt - Date.now();
+          passesEl.textContent = String(hopCount ?? "—");
+
           if (left <= 0) {
-            subEl.textContent = `Passes: ${hopCount} • ⏳ Ending…`;
+            timerEl.textContent = "00h 00m 00s";
+            noteEl.textContent = "⏳ Ending…";
             clearInterval(countdownTimer);
             countdownTimer = null;
             refresh();
             return;
           }
-          subEl.textContent = `Passes: ${hopCount} • ⏳ Ends in ${formatRemaining(left)}`;
+
+          timerEl.textContent = formatRemaining(left);
         }
 
         tick();
         countdownTimer = setInterval(tick, 1000);
       }
 
-      function showExpiredResult({ youAreHolderAtEnd, hopCount }) {
+      function showExpiredResult(youAreHolderAtEnd, hopCount) {
         titleEl.textContent = "Game over";
         passBtn.disabled = true;
+        passesEl.textContent = String(hopCount ?? "—");
+        timerEl.textContent = "00h 00m 00s";
 
         if (youAreHolderAtEnd) {
-          mainEl.textContent = "🔥 You got burned. You were holding it at the end.";
-          subEl.textContent = `Damn. Pass it earlier next time 😈 • Total passes: ${hopCount ?? "—"}`;
+          mainEl.textContent = "🔥 You got burned.";
+          noteEl.textContent = `You were holding it at the end • Total passes: ${hopCount ?? "—"}`;
         } else {
-          mainEl.textContent = "😮‍💨 You survived. Someone else got burned.";
-          subEl.textContent = `Curiosity satisfied. Run it again? • Total passes: ${hopCount ?? "—"}`;
+          mainEl.textContent = "😮‍💨 You survived.";
+          noteEl.textContent = `Someone else got burned • Total passes: ${hopCount ?? "—"}`;
         }
       }
 
       function showStaleLink() {
-        // Someone opened an old link after a pass happened
         titleEl.textContent = "Hot Potato";
         mainEl.textContent = "⏳ This link is old.";
-        subEl.textContent = "You need the latest story link to claim the potato.";
+        noteEl.textContent = "You need the latest story link to claim the potato.";
         passBtn.disabled = true;
       }
 
@@ -107,7 +398,7 @@
         if (!gameId || !token) {
           titleEl.textContent = "Invalid link";
           mainEl.textContent = "Missing game id or token.";
-          subEl.textContent = "Ask the person who shared it to repost the latest link.";
+          noteEl.textContent = "Ask the person who shared it to repost the latest link.";
           passBtn.disabled = true;
           return;
         }
@@ -126,13 +417,13 @@
         if (!data.ok) {
           titleEl.textContent = "Error";
           mainEl.textContent = "Could not load game.";
-          subEl.textContent = data.error || "unknown_error";
+          noteEl.textContent = data.error || "unknown_error";
           passBtn.disabled = true;
           return;
         }
 
         if (data.expired) {
-          showExpiredResult({ youAreHolderAtEnd: !!data.youWin, hopCount: data.hopCount });
+          showExpiredResult(!!data.youWin, data.hopCount);
           return;
         }
 
@@ -143,28 +434,35 @@
 
         titleEl.textContent = "Hot Potato";
         mainEl.textContent = "🔥 You are holding it right now.";
+        noteEl.textContent = "Pass it before the timer hits zero 😈";
         passBtn.disabled = false;
+
         startCountdown(data.expiresAt, data.hopCount);
       }
 
       async function refresh() {
         if (!gameId) return;
-
         const holderId = getHolderId();
-        const res = await fetch(`${API}/game/${gameId}/status?holderId=${encodeURIComponent(holderId)}`);
 
+        const res = await fetch(`${API}/game/${gameId}/status?holderId=${encodeURIComponent(holderId)}`);
         let data = {};
         try { data = await res.json(); } catch {}
-
         if (!data.ok) return;
 
         if (data.expired) {
-          showExpiredResult({ youAreHolderAtEnd: !!data.youHold, hopCount: data.hopCount });
+          showExpiredResult(!!data.youHold, data.hopCount);
           return;
         }
 
         titleEl.textContent = "Hot Potato";
-        mainEl.textContent = data.youHold ? "🔥 You are holding it right now." : "😮 Someone else is holding it.";
+        if (data.youHold) {
+          mainEl.textContent = "🔥 You are holding it right now.";
+          noteEl.textContent = "Pass it before the timer hits zero 😈";
+        } else {
+          mainEl.textContent = "😮 Someone else is holding it.";
+          noteEl.textContent = "Wait for the latest link in a story to claim it.";
+        }
+
         passBtn.disabled = !data.youHold;
         startCountdown(data.expiresAt, data.hopCount);
       }
@@ -184,53 +482,51 @@
 
         if (!data.ok) {
           passBtn.disabled = false;
-          subEl.textContent = data.error === "not_holder"
-            ? "You can only pass if you’re the current holder."
-            : "Pass failed. Try again.";
+          toast(data.error === "not_holder" ? "You’re not the holder." : "Pass failed.");
           return;
         }
 
         if (data.expired) {
-          showExpiredResult({ youAreHolderAtEnd: true, hopCount: data.hopCount });
+          showExpiredResult(true, data.hopCount);
           return;
         }
 
         const newLink = data.url;
 
-        // Best-effort 2-in-1 share flow:
-        // 1) Try native share sheet (works on most phones)
-        // 2) Always fall back to copy
+        // Best-effort share + copy (2-in-1 feel)
         let shared = false;
         if (navigator.share) {
           try {
-            await navigator.share({ title: "Hot Potato", text: "You’re holding it… pass it 🔥", url: newLink });
+            await navigator.share({
+              title: "Hot Potato 🔥",
+              text: "You’re holding it… pass it 😈",
+              url: newLink,
+            });
             shared = true;
           } catch {}
         }
 
         try {
           await navigator.clipboard.writeText(newLink);
-          if (shared) {
-            subEl.textContent = `✅ Shared + copied. Total passes: ${data.hopCount}`;
-          } else {
-            subEl.textContent =
-              `✅ New link copied. Post it to your IG Story to pass it. • Total passes: ${data.hopCount}`;
-          }
+          toast(shared ? "Shared + copied ✅" : "New link copied ✅");
+          noteEl.textContent = shared
+            ? `Nice. Total passes: ${data.hopCount}`
+            : `Copied. Post to IG Story (Link sticker) • Total passes: ${data.hopCount}`;
         } catch {
-          subEl.textContent =
-            "Couldn’t auto-copy. Manually copy the new link from the address bar after it updates.";
+          noteEl.textContent = "Couldn’t auto-copy. Copy the link manually.";
         }
 
-        // Update the current page URL to the new token (so refresh doesn't become stale)
-        const newUrl = new URL(location.href);
-        newUrl.searchParams.set("t", new URL(newLink).searchParams.get("t"));
-        history.replaceState({}, "", newUrl.toString());
+        // Update current URL token so this tab stays “latest”
+        const newUrlObj = new URL(newLink);
+        const newToken = newUrlObj.searchParams.get("t");
+        const cur = new URL(location.href);
+        cur.searchParams.set("t", newToken);
+        history.replaceState({}, "", cur.toString());
 
-        // Refresh status/UI
         await claim();
       }
 
-      document.getElementById("refresh").onclick = refresh;
+      refreshBtn.onclick = refresh;
       passBtn.onclick = passItNow;
 
       claim();
