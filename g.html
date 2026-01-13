@@ -232,6 +232,57 @@
         border: 1px solid rgba(255,255,255,0.10);
         background: rgba(0,0,0,0.22);
       }
+      .mapStage {
+  position: relative;
+  margin-top: 10px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.18);
+}
+
+/* keep it phone-friendly, preserve image ratio */
+.mapImg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* overlay layer */
+.mapPins {
+  position: absolute;
+  inset: 0;
+}
+
+/* each potato emoji */
+.pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  line-height: 1;
+  filter: drop-shadow(0 0 8px rgba(255,43,214,0.25));
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.95;
+  animation: pinFloat 2.8s ease-in-out infinite;
+}
+
+.pin:nth-child(3n) { animation-duration: 3.2s; }
+.pin:nth-child(4n) { animation-duration: 2.5s; }
+
+@keyframes pinFloat {
+  0% { transform: translate(-50%, -50%) translateY(0px); }
+  50% { transform: translate(-50%, -50%) translateY(-4px); }
+  100% { transform: translate(-50%, -50%) translateY(0px); }
+}
+
+
+/* “hot” potatoes */
+.pin.hot {
+  font-size: 18px;
+  filter: drop-shadow(0 0 10px rgba(182,255,59,0.25));
+}
+
       .metaTop {
         display: flex;
         align-items: baseline;
@@ -261,7 +312,7 @@
         line-height: 1.25;
       }
 
-      .mapWrap {
+      . {
         margin-top: 10px;
         padding: 12px;
         border-radius: 16px;
@@ -396,13 +447,18 @@
         </div>
 
         <!-- New: 8-bit map -->
-        <div class="mapWrap" id="mapWrap" style="display:none">
+       <div class="mapWrap" id="mapWrap" style="display:none">
           <div class="mapHeader">
             <div class="mapTitle">🌍 LIVE POTATO MAP</div>
             <div class="mapCount" id="mapCount">—</div>
           </div>
-          <div class="mapGrid" id="mapGrid" aria-hidden="true"></div>
+        
+          <div class="mapStage" id="mapStage" aria-hidden="true">
+            <img class="mapImg" src="world-map.png" alt="" />
+            <div class="mapPins" id="mapPins"></div>
+          </div>
         </div>
+
 
         <div style="height: 12px"></div>
 
@@ -443,7 +499,8 @@
       const rankTitleEl = document.getElementById("rankTitle");
       const rankSubEl = document.getElementById("rankSub");
       const mapWrapEl = document.getElementById("mapWrap");
-      const mapGridEl = document.getElementById("mapGrid");
+      const mapStageEl = document.getElementById("mapStage");
+      const mapPinsEl = document.getElementById("mapPins");
       const mapCountEl = document.getElementById("mapCount");
 
       gidPill.textContent = "ID: " + (gameId ? gameId : "—");
@@ -548,69 +605,65 @@
       }
 
       function renderMap(total) {
-        // Show map once we have stats
-        mapWrapEl.style.display = "block";
+  mapWrapEl.style.display = "block";
 
-        // 20x10 = 200 px tiles
-        const W = 20;
-        const H = 10;
-        const tiles = W * H;
+  // potatoes shown: same logic as before (cap for readability)
+  const potatoCount = Math.max(1, Math.min(30, Math.floor(total / 2) + 1));
+  mapCountEl.textContent = `${potatoCount} hot potatoes spotted`;
 
-        // Simple "continent" mask by thresholding RNG (pixel-art feel)
-        const seed = hashSeed(String(gameId || "x") + "_" + String(total));
-        const rand = mulberry32(seed);
+  // Clear old pins
+  mapPinsEl.innerHTML = "";
 
-        // How many potatoes to show: tie to real total passes, cap to avoid clutter
-        const potatoCount = Math.max(1, Math.min(30, Math.floor(total / 2) + 1));
-        mapCountEl.textContent = `${potatoCount} hot potatoes spotted`;
+  // Seeded randomness so it feels “stable-ish” per total/game
+  const seed = hashSeed(String(gameId || "x") + "_" + String(total));
+  const rand = mulberry32(seed);
 
-        // Build base grid
-        mapGridEl.innerHTML = "";
-        const landMask = new Array(tiles).fill(false);
+  // Place pins inside the map image bounds
+  // We’ll avoid the very edges so emojis don't get clipped
+  const padX = 6;  // %
+  const padY = 10; // %
 
-        for (let i = 0; i < tiles; i++) {
-          // Create "blobs" of land by smoothing-ish randomness
-          const r = rand();
-          landMask[i] = r > 0.62; // tweak for more/less land
-        }
+  // Pick a few to be “hot”
+  const hotCount = Math.min(3, potatoCount);
 
-        // Render tiles
-        for (let i = 0; i < tiles; i++) {
-          const d = document.createElement("div");
-          d.className = "px" + (landMask[i] ? " land" : "");
-          mapGridEl.appendChild(d);
-        }
+  // Basic “land-biased” distribution hack:
+  // Your map has oceans mostly blue; we *could* do pixel sampling,
+  // but IG webviews can be finicky. For MVP: we bias to the middle latitudes
+  // and away from extreme top/bottom to mimic continents.
+  function randomLandPoint() {
+    // x uniform
+    const x = padX + rand() * (100 - padX * 2);
 
-        // Sprinkle potatoes on land (if possible)
-        const chosen = new Set();
-        const tileNodes = mapGridEl.children;
+    // y biased toward center band (continents are mostly here)
+    // blend 2 randoms for a bell-ish curve
+    const r1 = rand(), r2 = rand();
+    const yRaw = (r1 + r2) / 2; // 0..1, peaked around 0.5
+    const y = padY + yRaw * (100 - padY * 2);
 
-        let placed = 0;
-        let safety = 0;
-        while (placed < potatoCount && safety < 2000) {
-          safety++;
-          const idx = Math.floor(rand() * tiles);
-          if (!landMask[idx]) continue;
-          if (chosen.has(idx)) continue;
-          chosen.add(idx);
+    return { x, y };
+  }
 
-          const node = tileNodes[idx];
-          node.className = "px potatoDot";
-          placed++;
-        }
+  // Create potatoes
+  for (let i = 0; i < potatoCount; i++) {
+    const { x, y } = randomLandPoint();
 
-        // Add a couple "hot" potatoes
-        const hot = Math.min(3, placed);
-        let hplaced = 0;
-        safety = 0;
-        while (hplaced < hot && safety < 500) {
-          safety++;
-          const idx = Math.floor(rand() * tiles);
-          if (!chosen.has(idx)) continue;
-          tileNodes[idx].className = "px hotDot";
-          hplaced++;
-        }
-      }
+    const pin = document.createElement("div");
+    pin.className = "pin" + (i < hotCount ? " hot" : "");
+
+    // Hot potatoes look more exciting
+    if (i < hotCount) {
+      pin.textContent = "🔥🥔";
+    } else {
+      pin.textContent = "🥔";
+    }
+
+    pin.style.left = x + "%";
+    pin.style.top = y + "%";
+
+    mapPinsEl.appendChild(pin);
+  }
+}
+
 
       // -------- New: lightweight confetti --------
       const confettiCanvas = document.getElementById("confetti");
