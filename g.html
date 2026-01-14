@@ -91,24 +91,27 @@
       }
 
       /* ---- Background mascot watermark (no layout height) ---- */
+      /* ---- Corner mascot (does not take layout space) ---- */
       .bgMascot {
-        position: fixed;
-        left: 50%;
-        top: 110px;
-        transform: translateX(-50%);
-        width: 240px;
-        height: 240px;
-        opacity: 0.18;
-        filter: blur(0px) drop-shadow(0 0 24px rgba(255,43,214,0.18));
+        position: absolute;
+        right: -18px;
+        bottom: -14px;
+        width: 140px;
+        height: auto;
+        opacity: 0.92;
+        filter: drop-shadow(0 0 18px rgba(0, 245, 255, 0.12))
+                drop-shadow(0 0 18px rgba(255, 43, 214, 0.10));
         pointer-events: none;
-        z-index: 1;
+        z-index: 2;
         animation: bgFloat 4.2s ease-in-out infinite;
       }
+      
       @keyframes bgFloat {
-        0% { transform: translateX(-50%) translateY(0px) rotate(-2deg); }
-        50% { transform: translateX(-50%) translateY(-10px) rotate(2deg); }
-        100% { transform: translateX(-50%) translateY(0px) rotate(-2deg); }
+        0% { transform: translateY(0px) rotate(-2deg); }
+        50% { transform: translateY(-8px) rotate(2deg); }
+        100% { transform: translateY(0px) rotate(-2deg); }
       }
+
 
       /* ---- Stats grid (4 items) + Actions inside it ---- */
       .statsGrid {
@@ -413,26 +416,9 @@
   <body>
     <canvas id="confetti"></canvas>
 
-    <svg class="bgMascot" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <radialGradient id="bgSkin" cx="35%" cy="30%" r="70%">
-          <stop offset="0" stop-color="#c9ffd6"/>
-          <stop offset="1" stop-color="#3aa56b"/>
-        </radialGradient>
-        <linearGradient id="bgAura" x1="0" x2="1">
-          <stop offset="0" stop-color="#00f5ff"/>
-          <stop offset="0.5" stop-color="#ff2bd6"/>
-          <stop offset="1" stop-color="#ffcc33"/>
-        </linearGradient>
-      </defs>
-      <path d="M60 10 C50 25,75 30,58 45 C45 58,55 70,60 74 C70 67,78 58,74 45 C70 33,85 28,78 15 C73 6,64 6,60 10Z"
-            fill="url(#bgAura)" opacity="0.35"/>
-      <path d="M23 63 C22 35,47 22,70 27 C94 31,105 50,96 74 C87 99,57 106,38 95 C28 88,24 78,23 63Z"
-            fill="url(#bgSkin)" stroke="rgba(255,255,255,0.10)" stroke-width="2"/>
-      <circle cx="50" cy="67" r="6" fill="rgba(0,0,0,0.62)"/>
-      <circle cx="74" cy="67" r="6" fill="rgba(0,0,0,0.62)"/>
-      <path d="M53 80 C60 86,71 86,78 80" stroke="rgba(0,0,0,0.52)" stroke-width="5" stroke-linecap="round" fill="none"/>
-    </svg>
+    <!-- Corner mascot (transparent PNG) -->
+
+
 
     <div class="screen">
       <div class="topbar">
@@ -509,6 +495,8 @@
 
         <div class="smallNote" id="note"></div>
         <div class="igHint" id="igHint"></div>
+        <img class="bgMascot" src="ZOMBIE.png" alt="" aria-hidden="true" />
+
       </div>
     </div>
 
