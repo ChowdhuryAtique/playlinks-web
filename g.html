@@ -105,6 +105,23 @@
         z-index: 2;
         animation: bgFloat 4.2s ease-in-out infinite;
       }
+
+      /* Top-left corner zombie (outside card) */
+      .bgMascotTop {
+        position: fixed;
+        left: -10px;
+        top: 72px;              /* tweak if it overlaps topbar */
+        width: 115px;
+        height: auto;
+        opacity: 0.92;
+        pointer-events: none;
+        z-index: 3;             /* above background, below toasts/confetti */
+        transform: scaleX(-1);  /* face the other way */
+        filter: drop-shadow(0 0 16px rgba(0, 245, 255, 0.10))
+                drop-shadow(0 0 16px rgba(255, 43, 214, 0.08));
+        animation: bgFloat 4.2s ease-in-out infinite;
+      }
+
       
       @keyframes bgFloat {
         0% { transform: translateY(0px) rotate(-2deg); }
@@ -417,7 +434,7 @@
     <canvas id="confetti"></canvas>
 
     <!-- Corner mascot (transparent PNG) -->
-    <img class="bgMascot" src="ZOMBIE.png" alt="" aria-hidden="true" />
+    <img class="bgMascotTop" src="ZOMBIE2.png" alt="" aria-hidden="true" />
     <div class="screen">
       <div class="topbar">
         <div class="brand">PLAYLINKS</div>
