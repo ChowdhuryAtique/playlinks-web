@@ -796,14 +796,21 @@
 
       function showStaleLink() {
         titleEl.textContent = "InstaZombie";
-        mainEl.textContent = "🧟 You’re not infected right now.";
+        mainEl.textContent = "🧟 You’re infected… but not holding the strain.";
         const played = gameId && localStorage.getItem(playedKey()) === "1";
+      
         noteEl.textContent = played
-          ? "You were part of this outbreak. It’s still spreading…"
-          : "You need the latest story link to get infected.";
-        passBtn.disabled = true;
+          ? "You’re still in the outbreak. Save yourself (Cure) or leave a survivor note 👇"
+          : "You joined the outbreak. Save yourself (Cure) or leave a survivor note 👇";
+      
+        // Keep both actions available for Category 2.
+        // Spread will fail with not_holder unless they have latest, but it's okay.
+        passBtn.disabled = false;
+        passBtn.textContent = "🧟 Spread the cure";
         cureBtn.disabled = false;
       }
+}
+
 
       async function claim() {
         if (!gameId || !token) {
@@ -886,7 +893,10 @@
             : "Cure yourself or leave a note 👇";
         }
 
-        passBtn.disabled = !data.youHold;
+        // IMPORTANT: keep pass clickable even if not holder; backend enforces it
+        passBtn.disabled = false;
+        passBtn.textContent = data.youHold ? "🧟 Spread the cure" : "🧟 Spread the cure";
+
         cureBtn.disabled = false;
         startCountdown(data.expiresAt, data.hopCount);
       }
