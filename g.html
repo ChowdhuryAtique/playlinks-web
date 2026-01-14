@@ -1,1148 +1,436 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
-    />
-    <title>InstaZombie • PlayLinks</title>
-    <style>
-      :root {
-        --bg: #070713;
-        --panel: rgba(255, 255, 255, 0.06);
-        --text: rgba(255, 255, 255, 0.92);
-        --muted: rgba(255, 255, 255, 0.58);
-        --neon1: #00f5ff;
-        --neon2: #ff2bd6;
-        --neon3: #b6ff3b;
-        --danger: #ff4d4d;
-        --shadow: 0 0 34px rgba(0, 245, 255, 0.14);
-      }
-
-      * { box-sizing: border-box; }
-      html, body { height: 100%; }
-      body {
-        margin: 0;
-        background: radial-gradient(1200px 800px at 25% 10%, rgba(255, 43, 214, 0.12), transparent 55%),
-                    radial-gradient(1000px 700px at 80% 25%, rgba(0, 245, 255, 0.12), transparent 55%),
-                    radial-gradient(900px 600px at 50% 100%, rgba(182, 255, 59, 0.08), transparent 55%),
-                    var(--bg);
-        color: var(--text);
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-        overflow-x: hidden;
-      }
-
-      /* Mobile-first screen */
-      .screen {
-        max-width: 440px;
-        margin: 0 auto;
-        padding: 14px 14px 16px; /* a bit tighter */
-        min-height: 100dvh;
-        display: flex;
-        flex-direction: column;
-        gap: 10px; /* tighter */
-        position: relative;
-      }
-
-      .topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-top: 4px;
-        position: relative;
-        z-index: 2;
-      }
-      .topbar .brand {
-        font-size: 14px;
-        letter-spacing: 1px;
-        opacity: 0.85;
-      }
-      .pill {
-        font-size: 11px;
-        color: rgba(255,255,255,0.72);
-        border: 1px solid rgba(255,255,255,0.10);
-        background: rgba(255,255,255,0.05);
-        padding: 7px 10px;
-        border-radius: 999px;
-      }
-
-      .card {
-        background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
-        border: 1px solid rgba(255,255,255,0.10);
-        border-radius: 18px;
-        padding: 12px;
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(10px);
-        position: relative;
-        z-index: 2;
-      }
-
-      .title {
-        font-size: 20px;
-        margin: 2px 0 0;
-        letter-spacing: 0.2px;
-      }
-      .subtitle {
-        margin: 6px 0 0;
-        color: var(--muted);
-        font-size: 12px;
-        line-height: 1.35;
-      }
-
-      /* ---- Background mascot watermark (no layout height) ---- */
-      .bgMascot {
-        position: fixed;
-        left: 50%;
-        top: 110px;
-        transform: translateX(-50%);
-        width: 240px;
-        height: 240px;
-        opacity: 0.18;
-        filter: blur(0px) drop-shadow(0 0 24px rgba(255,43,214,0.18));
-        pointer-events: none;
-        z-index: 1;
-        animation: bgFloat 4.2s ease-in-out infinite;
-      }
-      @keyframes bgFloat {
-        0% { transform: translateX(-50%) translateY(0px) rotate(-2deg); }
-        50% { transform: translateX(-50%) translateY(-10px) rotate(2deg); }
-        100% { transform: translateX(-50%) translateY(0px) rotate(-2deg); }
-      }
-
-      /* ---- Stats grid (4 items) + Actions inside it ---- */
-      .statsGrid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 10px;
-      }
-
-      .stat {
-        padding: 12px 12px;
-        border-radius: 16px;
-        border: 1px solid rgba(255,255,255,0.10);
-        background: rgba(0,0,0,0.22);
-        min-height: 74px;
-      }
-      .statLabel {
-        font-size: 11px;
-        color: rgba(255,255,255,0.55);
-        letter-spacing: 0.7px;
-      }
-      .timerValue {
-        margin-top: 6px;
-        font-weight: 900;
-        font-size: 20px;
-        letter-spacing: 0.2px;
-        color: var(--neon1);
-        text-shadow: 0 0 18px rgba(0,245,255,0.25);
-      }
-      .passesValue {
-        margin-top: 6px;
-        font-weight: 900;
-        font-size: 20px;
-        color: var(--neon2);
-        text-shadow: 0 0 18px rgba(255,43,214,0.22);
-      }
-
-      .metaValue {
-        font-weight: 900;
-        font-size: 16px;
-        color: rgba(255,255,255,0.92);
-      }
-      .rankValue {
-        font-weight: 900;
-        font-size: 14px;
-        color: var(--neon3);
-        text-shadow: 0 0 14px rgba(182,255,59,0.16);
-      }
-      .metaSub {
-        margin-top: 6px;
-        font-size: 11px;
-        color: rgba(255,255,255,0.56);
-        line-height: 1.25;
-      }
-
-      /* Action stat: buttons live inside a stat tile (always visible) */
-      .actionStat {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 8px;
-      }
-      .actionRow {
-        display: flex;
-        gap: 8px;
-      }
-
-      .btn {
-        width: 100%;
-        border: 0;
-        border-radius: 14px;
-        padding: 12px 12px;
-        font-size: 14px;
-        font-weight: 900;
-        color: #061018;
-        background: linear-gradient(90deg, var(--neon1), var(--neon2));
-        box-shadow: 0 0 18px rgba(0,245,255,0.16);
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
-      }
-      .btn:active { transform: translateY(1px); }
-
-      .btnSecondary {
-        width: 100%;
-        border-radius: 14px;
-        padding: 12px 12px;
-        font-size: 13px;
-        font-weight: 900;
-        color: rgba(255,255,255,0.86);
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.12);
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
-      }
-      .btn:disabled, .btnSecondary:disabled { opacity: 0.5; cursor: not-allowed; }
-
-      /* Map compact */
-      .mapWrap {
-        margin-top: 10px;
-        padding: 10px;
-        border-radius: 16px;
-        border: 1px solid rgba(255,255,255,0.10);
-        background: rgba(0,0,0,0.18);
-        overflow: hidden;
-      }
-      .mapHeader {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-      }
-      .mapTitle {
-        font-size: 11px;
-        color: rgba(255,255,255,0.55);
-        letter-spacing: 0.7px;
-      }
-      .mapCount {
-        font-size: 11px;
-        color: rgba(255,255,255,0.70);
-      }
-      .mapStage {
-        position: relative;
-        margin-top: 8px;
-        border-radius: 14px;
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.08);
-        background: rgba(0,0,0,0.18);
-      }
-      .mapImg { display: block; width: 100%; height: auto; }
-      .mapPins { position: absolute; inset: 0; }
-      .pin {
-        position: absolute;
-        transform: translate(-50%, -50%);
-        font-size: 15px;
-        line-height: 1;
-        filter: drop-shadow(0 0 8px rgba(255,43,214,0.25));
-        user-select: none;
-        pointer-events: none;
-        opacity: 0.95;
-        animation: pinFloat 2.8s ease-in-out infinite;
-      }
-      .pin.hot {
-        font-size: 17px;
-        filter: drop-shadow(0 0 10px rgba(182,255,59,0.25));
-      }
-      @keyframes pinFloat {
-        0% { transform: translate(-50%, -50%) translateY(0px); }
-        50% { transform: translate(-50%, -50%) translateY(-4px); }
-        100% { transform: translate(-50%, -50%) translateY(0px); }
-      }
-
-      /* ---- Survivor notes ticker (fixed height, no boxes) ---- */
-      .notesWrap {
-        margin-top: 10px;
-        padding: 10px 10px 8px;
-        border-radius: 16px;
-        border: 1px solid rgba(255,255,255,0.10);
-        background: rgba(0,0,0,0.18);
-      }
-      .notesHeader {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-      }
-      .notesTitle {
-        font-size: 11px;
-        color: rgba(255,255,255,0.55);
-        letter-spacing: 0.7px;
-      }
-      .notesCount {
-        font-size: 11px;
-        color: rgba(255,255,255,0.70);
-      }
-
-      /* fixed viewport */
-      .notesViewport {
-        margin-top: 8px;
-        height: 78px;          /* fixed size */
-        overflow: hidden;      /* no growth */
-        position: relative;
-        border-radius: 12px;
-        background: rgba(0,0,0,0.12);
-        border: 1px solid rgba(255,255,255,0.06);
-      }
-
-      /* gradient mask feel */
-      .notesViewport:before,
-      .notesViewport:after {
-        content: "";
-        position: absolute;
-        left: 0; right: 0;
-        height: 16px;
-        z-index: 2;
-        pointer-events: none;
-      }
-      .notesViewport:before {
-        top: 0;
-        background: linear-gradient(180deg, rgba(7,7,19,0.90), rgba(7,7,19,0));
-      }
-      .notesViewport:after {
-        bottom: 0;
-        background: linear-gradient(0deg, rgba(7,7,19,0.90), rgba(7,7,19,0));
-      }
-
-      /* moving column */
-      .notesTrack {
-        position: absolute;
-        left: 0; right: 0;
-        top: 0;
-        padding: 10px 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        will-change: transform;
-      }
-
-      /* minimalist message line */
-      .noteLine {
-        font-size: 12px;
-        color: rgba(255,255,255,0.86);
-        line-height: 1.25;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        opacity: 0.92;
-      }
-      .noteMeta {
-        font-size: 10px;
-        color: rgba(255,255,255,0.46);
-        margin-top: 4px;
-      }
-
-      /* input row compact */
-      .noteInputRow {
-        margin-top: 8px;
-        display: flex;
-        gap: 8px;
-      }
-      .noteInput {
-        flex: 1;
-        border-radius: 14px;
-        border: 1px solid rgba(255,255,255,0.12);
-        background: rgba(0,0,0,0.25);
-        color: rgba(255,255,255,0.92);
-        font-size: 13px;
-        outline: none;
-        padding: 12px 12px;
-      }
-      .noteSend {
-        border-radius: 14px;
-        border: 1px solid rgba(255,255,255,0.12);
-        background: rgba(255,255,255,0.06);
-        color: rgba(255,255,255,0.86);
-        font-weight: 900;
-        padding: 12px 12px;
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
-      }
-      .noteSend:disabled { opacity: 0.5; cursor: not-allowed; }
-
-      /* Footer */
-      .smallNote {
-        margin-top: 8px;
-        color: rgba(255,255,255,0.56);
-        font-size: 12px;
-        line-height: 1.35;
-      }
-      .igHint {
-        margin-top: 6px;
-        font-size: 11px;
-        color: rgba(255,255,255,0.50);
-        text-align: center;
-      }
-
-      .toast {
-        position: fixed;
-        left: 50%;
-        bottom: 18px;
-        transform: translateX(-50%);
-        background: rgba(0,0,0,0.72);
-        border: 1px solid rgba(255,255,255,0.12);
-        color: rgba(255,255,255,0.92);
-        padding: 10px 12px;
-        border-radius: 14px;
-        font-size: 12px;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.2s ease;
-        max-width: 92vw;
-        text-align: center;
-        z-index: 50;
-      }
-      .toast.show { opacity: 1; }
-
-      /* Confetti canvas */
-      #confetti {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 40;
-      }
-    </style>
-  </head>
-
-  <body>
-    <canvas id="confetti"></canvas>
-
-    <!-- Background mascot placeholder (replace later with your custom zombie SVG / image) -->
-    <svg class="bgMascot" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <radialGradient id="bgSkin" cx="35%" cy="30%" r="70%">
-          <stop offset="0" stop-color="#c9ffd6"/>
-          <stop offset="1" stop-color="#3aa56b"/>
-        </radialGradient>
-        <linearGradient id="bgAura" x1="0" x2="1">
-          <stop offset="0" stop-color="#00f5ff"/>
-          <stop offset="0.5" stop-color="#ff2bd6"/>
-          <stop offset="1" stop-color="#ffcc33"/>
-        </linearGradient>
-      </defs>
-      <path d="M60 10 C50 25,75 30,58 45 C45 58,55 70,60 74 C70 67,78 58,74 45 C70 33,85 28,78 15 C73 6,64 6,60 10Z"
-            fill="url(#bgAura)" opacity="0.35"/>
-      <path d="M23 63 C22 35,47 22,70 27 C94 31,105 50,96 74 C87 99,57 106,38 95 C28 88,24 78,23 63Z"
-            fill="url(#bgSkin)" stroke="rgba(255,255,255,0.10)" stroke-width="2"/>
-      <circle cx="50" cy="67" r="6" fill="rgba(0,0,0,0.62)"/>
-      <circle cx="74" cy="67" r="6" fill="rgba(0,0,0,0.62)"/>
-      <path d="M53 80 C60 86,71 86,78 80" stroke="rgba(0,0,0,0.52)" stroke-width="5" stroke-linecap="round" fill="none"/>
-    </svg>
-
-    <div class="screen">
-      <div class="topbar">
-        <div class="brand">PLAYLINKS</div>
-        <div class="pill" id="gidPill">ID: …</div>
-      </div>
-
-      <div class="card">
-        <div class="title" id="title">Loading…</div>
-        <div class="subtitle" id="main">Opening…</div>
-
-        <!-- 4 tiles: Timer, Infected, Global, Title -->
-        <div class="statsGrid">
-          <div class="stat">
-            <div class="statLabel">TIMER</div>
-            <div class="timerValue" id="timer">—</div>
-          </div>
-
-          <div class="stat">
-            <div class="statLabel">INFECTED</div>
-            <div class="passesValue" id="passes">—</div>
-          </div>
-
-          <div class="stat">
-            <div class="statLabel">GLOBAL INFECTED</div>
-            <div class="metaValue" id="globalPasses">—</div>
-            <div class="metaSub" id="globalSub">Across all games.</div>
-          </div>
-
-          <div class="stat">
-            <div class="statLabel">YOUR TITLE</div>
-            <div class="rankValue" id="rankTitle">—</div>
-            <div class="metaSub" id="rankSub">Level up by spreading/cures.</div>
-          </div>
-
-          <!-- Actions live INSIDE the grid (always visible) -->
-          <div class="stat actionStat" style="grid-column: 1 / span 2; min-height: 0;">
-            <div class="actionRow">
-              <button class="btn" id="passBtn">🧟 Spread the cure</button>
-              <button class="btnSecondary" id="cureBtn">🧪 Cure</button>
-            </div>
-            <div class="actionRow">
-              <button class="btnSecondary" id="homeBtn">🏠 Menu</button>
-              <button class="btnSecondary" id="refreshBtn">↻ Refresh</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Map (compact) -->
-        <div class="mapWrap" id="mapWrap" style="display:none">
-          <div class="mapHeader">
-            <div class="mapTitle">🌍 LIVE ZOMBIE MAP</div>
-            <div class="mapCount" id="mapCount">—</div>
-          </div>
-
-          <div class="mapStage" aria-hidden="true">
-            <img class="mapImg" src="world-map.png" alt="" />
-            <div class="mapPins" id="mapPins"></div>
-          </div>
-        </div>
-
-        <!-- Notes ticker -->
-        <div class="notesWrap" id="notesWrap" style="display:none">
-          <div class="notesHeader">
-            <div class="notesTitle">📝 SURVIVOR NOTES</div>
-            <div class="notesCount" id="notesCount">—</div>
-          </div>
-
-          <div class="notesViewport">
-            <div class="notesTrack" id="notesTrack"></div>
-          </div>
-
-          <div class="noteInputRow">
-            <input class="noteInput" id="noteInput" maxlength="120" placeholder="Leave a note (anonymous)..." />
-            <button class="noteSend" id="noteSend">Send</button>
-          </div>
-        </div>
-
-        <div class="smallNote" id="note"></div>
-        <div class="igHint" id="igHint"></div>
-      </div>
-    </div>
-
-    <div class="toast" id="toast"></div>
-
-    <script>
-      const API = "https://api.playlinks.games";
-      const params = new URLSearchParams(location.search);
-      const gameId = params.get("g");
-      const token = params.get("t");
-
-      const gidPill = document.getElementById("gidPill");
-      const titleEl = document.getElementById("title");
-      const mainEl = document.getElementById("main");
-      const timerEl = document.getElementById("timer");
-      const passesEl = document.getElementById("passes");
-      const noteEl = document.getElementById("note");
-      const passBtn = document.getElementById("passBtn");
-      const cureBtn = document.getElementById("cureBtn");
-      const homeBtn = document.getElementById("homeBtn");
-      const refreshBtn = document.getElementById("refreshBtn");
-      const igHintEl = document.getElementById("igHint");
-      const toastEl = document.getElementById("toast");
-
-      const globalPassesEl = document.getElementById("globalPasses");
-      const globalSubEl = document.getElementById("globalSub");
-      const rankTitleEl = document.getElementById("rankTitle");
-      const rankSubEl = document.getElementById("rankSub");
-      const mapWrapEl = document.getElementById("mapWrap");
-      const mapPinsEl = document.getElementById("mapPins");
-      const mapCountEl = document.getElementById("mapCount");
-
-      const notesWrapEl = document.getElementById("notesWrap");
-      const notesTrackEl = document.getElementById("notesTrack");
-      const notesCountEl = document.getElementById("notesCount");
-      const noteInputEl = document.getElementById("noteInput");
-      const noteSendEl = document.getElementById("noteSend");
-
-      gidPill.textContent = "ID: " + (gameId ? gameId : "—");
-
-      const isInstagram = /Instagram/i.test(navigator.userAgent);
-      if (isInstagram) {
-        igHintEl.textContent = "Tip: IG in-app browser sometimes blocks auto-share. Copy link → use Link sticker.";
-      }
-
-      function toast(msg) {
-        toastEl.textContent = msg;
-        toastEl.classList.add("show");
-        setTimeout(() => toastEl.classList.remove("show"), 1400);
-      }
-
-      function getHolderId() {
-        const key = "playlinks_holder_id";
-        let v = localStorage.getItem(key);
-        if (!v) {
-          v = "h_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
-          localStorage.setItem(key, v);
-        }
-        return v;
-      }
-
-      const TITLES = [
-        "🧟 Lvl 1 Zombie","🧟 Lvl 2 Zombie","🧟🔥 Lvl 3 Fire Zombie","🧪🧤 Lvl 1 Quick Curer","🧟🧩 Lvl 4 Super Spreader",
-        "🧟⚡ Lvl 5 Fast Zombie","🧟🪄 Lvl 6 Lucky Zombie","🧪🎯 Lvl 2 Clean Curer","🧪🧨 Lvl 3 Zombie Destroyer","🧪🥷 Lvl 4 Silent Curer",
-        "🧪🧯 Lvl 5 Extinguisher","💀🕹️ Undead Gamer","🛡️ Chain Guardian","💀🧠 Mind Gamer","💀🧊 Ice Veins",
-        "🏥🚀 Viral Stopper","🏥👑 Chain Saver","💀🐉 Venom Zombie","💀🌪️ Storm Boss","💀🪐 Legend"
-      ];
-
-      function playedKey() { return gameId ? `played_${gameId}` : "played_"; }
-      function passesKey() { return gameId ? `myPasses_${gameId}` : "myPasses_"; }
-      function curesKey() { return gameId ? `myCures_${gameId}` : "myCures_"; }
-
-      function markPlayed() { if (gameId) localStorage.setItem(playedKey(), "1"); }
-
-      function getMyPasses() { return gameId ? Number(localStorage.getItem(passesKey()) || 0) : 0; }
-      function incMyPasses() {
-        if (!gameId) return 0;
-        const n = getMyPasses() + 1;
-        localStorage.setItem(passesKey(), String(n));
-        markPlayed();
-        return n;
-      }
-
-      function getMyCures() { return gameId ? Number(localStorage.getItem(curesKey()) || 0) : 0; }
-      function incMyCures() {
-        if (!gameId) return 0;
-        const n = getMyCures() + 1;
-        localStorage.setItem(curesKey(), String(n));
-        markPlayed();
-        return n;
-      }
-
-      function updateRankUI() {
-        const p = getMyPasses() + getMyCures();
-        const idx = Math.min(TITLES.length - 1, p);
-        rankTitleEl.textContent = TITLES[idx];
-        if (p === 0) rankSubEl.textContent = "Spread or cure to level up.";
-        else rankSubEl.textContent = `You’ve acted ${p} time${p === 1 ? "" : "s"} in this game.`;
-      }
-      updateRankUI();
-
-      // Confetti
-      const confettiCanvas = document.getElementById("confetti");
-      const ctx = confettiCanvas.getContext("2d");
-      function resizeConfetti() {
-        confettiCanvas.width = Math.floor(window.innerWidth * devicePixelRatio);
-        confettiCanvas.height = Math.floor(window.innerHeight * devicePixelRatio);
-      }
-      window.addEventListener("resize", resizeConfetti);
-      resizeConfetti();
-
-      function burstConfetti(intensity = 60) {
-        const W = confettiCanvas.width;
-        const H = confettiCanvas.height;
-        const pieces = [];
-        const colors = ["#00f5ff", "#ff2bd6", "#b6ff3b", "#ffcc33", "#ffffff"];
-
-        for (let i = 0; i < intensity; i++) {
-          pieces.push({
-            x: W * (0.2 + Math.random() * 0.6),
-            y: H * (0.15 + Math.random() * 0.15),
-            vx: (Math.random() - 0.5) * W * 0.0022,
-            vy: (Math.random() * -1) * H * 0.0038,
-            g: H * 0.000006,
-            r: (3 + Math.random() * 5) * devicePixelRatio,
-            a: 1,
-            c: colors[Math.floor(Math.random() * colors.length)],
-            spin: (Math.random() - 0.5) * 0.25,
-            rot: Math.random() * Math.PI
-          });
-        }
-
-        let t = 0;
-        function frame() {
-          t++;
-          ctx.clearRect(0, 0, W, H);
-          for (const p of pieces) {
-            p.vy += p.g * 60;
-            p.x += p.vx * 60;
-            p.y += p.vy * 60;
-            p.rot += p.spin;
-            p.a *= 0.985;
-
-            if (p.a < 0.02) continue;
-            ctx.save();
-            ctx.globalAlpha = p.a;
-            ctx.translate(p.x, p.y);
-            ctx.rotate(p.rot);
-            ctx.fillStyle = p.c;
-            ctx.fillRect(-p.r, -p.r, p.r * 2.2, p.r * 1.2);
-            ctx.restore();
-          }
-          if (t < 45) requestAnimationFrame(frame);
-          else ctx.clearRect(0, 0, W, H);
-        }
-        requestAnimationFrame(frame);
-      }
-
-      // Global infected + map
-      let globalPasses = null;
-
-      async function loadStats() {
-        try {
-          const res = await fetch(`${API}/stats`);
-          const data = await res.json();
-          if (data && data.ok) {
-            globalPasses = Number(data.totalPasses || 0);
-            globalPassesEl.textContent = String(globalPasses);
-            globalSubEl.textContent = "Real activity across all games.";
-            renderMap(globalPasses);
-            return;
-          }
-        } catch {}
-        globalPassesEl.textContent = "—";
-        globalSubEl.textContent = "Couldn’t load stats.";
-      }
-
-      // Seeded RNG
-      function mulberry32(a) {
-        return function () {
-          let t = (a += 0x6D2B79F5);
-          t = Math.imul(t ^ (t >>> 15), t | 1);
-          t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-        };
-      }
-      function hashSeed(str) {
-        let h = 2166136261;
-        for (let i = 0; i < str.length; i++) {
-          h ^= str.charCodeAt(i);
-          h = Math.imul(h, 16777619);
-        }
-        return h >>> 0;
-      }
-
-      function renderMap(total) {
-        mapWrapEl.style.display = "block";
-        const count = Math.max(1, Math.min(26, Math.floor(total / 2) + 1));
-        mapCountEl.textContent = `${count} InstaZombies spotted`;
-        mapPinsEl.innerHTML = "";
-
-        const seed = hashSeed(String(gameId || "x") + "_" + String(total));
-        const rand = mulberry32(seed);
-        const padX = 6, padY = 10;
-        const hotCount = Math.min(3, count);
-
-        function randomLandPoint() {
-          const x = padX + rand() * (100 - padX * 2);
-          const r1 = rand(), r2 = rand();
-          const yRaw = (r1 + r2) / 2;
-          const y = padY + yRaw * (100 - padY * 2);
-          return { x, y };
-        }
-
-        for (let i = 0; i < count; i++) {
-          const { x, y } = randomLandPoint();
-          const pin = document.createElement("div");
-          pin.className = "pin" + (i < hotCount ? " hot" : "");
-          pin.textContent = i < hotCount ? "☠️" : "🧟";
-          pin.style.left = x + "%";
-          pin.style.top = y + "%";
-          mapPinsEl.appendChild(pin);
-        }
-      }
-
-      // Timer + core
-      let countdownTimer = null;
-
-      function formatRemaining(ms) {
-        const s = Math.max(0, Math.floor(ms / 1000));
-        const hh = Math.floor(s / 3600);
-        const mm = Math.floor((s % 3600) / 60);
-        const ss = s % 60;
-        return `${hh}h ${mm}m ${ss}s`;
-      }
-
-      function startCountdown(expiresAt, hopCount) {
-        if (countdownTimer) clearInterval(countdownTimer);
-
-        function tick() {
-          const left = expiresAt - Date.now();
-          passesEl.textContent = String(hopCount ?? "—");
-
-          if (left <= 0) {
-            timerEl.textContent = "00h 00m 00s";
-            noteEl.textContent = "⏳ Ending…";
-            clearInterval(countdownTimer);
-            countdownTimer = null;
-            refresh();
-            return;
-          }
-          timerEl.textContent = formatRemaining(left);
-        }
-
-        tick();
-        countdownTimer = setInterval(tick, 1000);
-      }
-
-      function showExpiredResult(youAreHolderAtEnd, hopCount) {
-        titleEl.textContent = "Game over";
-        passBtn.disabled = true;
-        cureBtn.disabled = true;
-        passesEl.textContent = String(hopCount ?? "—");
-        timerEl.textContent = "00h 00m 00s";
-
-        if (youAreHolderAtEnd) {
-          mainEl.textContent = "💀 You turned at the end.";
-          noteEl.textContent = `You were infected at the end • Total infected: ${hopCount ?? "—"}`;
-        } else {
-          mainEl.textContent = "😮‍💨 You made it out.";
-          noteEl.textContent = `Someone else turned • Total infected: ${hopCount ?? "—"}`;
-        }
-      }
-
-      function showStaleLink() {
-        titleEl.textContent = "InstaZombie";
-        mainEl.textContent = "🧟 You’re infected… but not holding the strain.";
-        const played = gameId && localStorage.getItem(playedKey()) === "1";
-      
-        noteEl.textContent = played
-          ? "You’re still in the outbreak. Save yourself (Cure) or leave a survivor note 👇"
-          : "You joined the outbreak. Save yourself (Cure) or leave a survivor note 👇";
-      
-        // Keep both actions available for Category 2.
-        // Spread will fail with not_holder unless they have latest, but it's okay.
-        passBtn.disabled = false;
-        passBtn.textContent = "🧟 Spread the cure";
-        cureBtn.disabled = false;
-      }
+function json(data, status = 200, extraHeaders = {}) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      ...extraHeaders,
+    },
+  });
 }
 
+function corsHeaders(origin) {
+  const allowed = new Set([
+    "https://playlinks.games",
+    "https://www.playlinks.games",
+  ]);
+  const o = allowed.has(origin) ? origin : "https://playlinks.games";
 
-      async function claim() {
-        if (!gameId || !token) {
-          titleEl.textContent = "Invalid link";
-          mainEl.textContent = "Missing game id or token.";
-          noteEl.textContent = "Ask the person who shared it to repost the latest link.";
-          passBtn.disabled = true;
-          cureBtn.disabled = true;
-          return;
-        }
+  return {
+    "Access-Control-Allow-Origin": o,
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+}
 
-        const holderId = getHolderId();
+function randomId(len = 10) {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let out = "";
+  const bytes = new Uint8Array(len);
+  crypto.getRandomValues(bytes);
+  for (let i = 0; i < len; i++) out += chars[bytes[i] % chars.length];
+  return out;
+}
 
-        const res = await fetch(`${API}/game/${gameId}/claim`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ holderId, token }),
-        });
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    const path = url.pathname.replace(/\/+$/, "");
+    const origin = request.headers.get("Origin") || "";
+    const CORS = corsHeaders(origin);
 
-        let data = {};
-        try { data = await res.json(); } catch {}
+    // CORS preflight
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: CORS });
+    }
 
-        if (!data.ok) {
-          titleEl.textContent = "Error";
-          mainEl.textContent = "Could not load game.";
-          noteEl.textContent = data.error || "unknown_error";
-          passBtn.disabled = true;
-          cureBtn.disabled = false;
-          return;
-        }
+    // Health check
+    if (request.method === "GET" && (path === "" || path === "/")) {
+      return json(
+        { ok: true, service: "playlinks-api", time: new Date().toISOString() },
+        200,
+        CORS
+      );
+    }
 
-        if (data.expired) {
-          showExpiredResult(!!data.youWin, data.hopCount);
-          return;
-        }
+    // --------------------
+    // GET /stats
+    // --------------------
+    if (request.method === "GET" && path === "/stats") {
+      const s = await env.DB.prepare(
+        `SELECT value FROM stats WHERE key = 'total_passes'`
+      ).first();
 
-        if (data.stale) {
-          showStaleLink();
-          return;
-        }
+      return json(
+        { ok: true, totalPasses: Number(s?.value || 0) },
+        200,
+        CORS
+      );
+    }
 
-        markPlayed();
-        updateRankUI();
-        burstConfetti(45);
+    // -----------------------------------------
+    // POST /game/create  body: { type?, hours? }
+    // -----------------------------------------
+    if (request.method === "POST" && path === "/game/create") {
+      let body = {};
+      try {
+        body = await request.json();
+      } catch {}
 
-        titleEl.textContent = "InstaZombie";
-        mainEl.textContent = "🧟 You’re infected right now.";
-        noteEl.textContent = "Spread the cure (share) before the timer hits zero 😈";
-        passBtn.disabled = false;
-        cureBtn.disabled = false;
+      const type = String(body.type || "hotpotato").toLowerCase();
+      const hours = Number(body.hours ?? 24);
+      const now = Date.now();
+      const expiresAt = now + Math.max(1, hours) * 60 * 60 * 1000;
 
-        startCountdown(data.expiresAt, data.hopCount);
+      const id = randomId(10);
+      const token = randomId(12);
+
+      await env.DB.prepare(
+        `INSERT INTO games (id, type, created_at, expires_at, hop_count, pass_token)
+         VALUES (?, ?, ?, ?, 0, ?)`
+      )
+        .bind(id, type, now, expiresAt, token)
+        .run();
+
+      const playUrl = `https://playlinks.games/g.html?g=${id}&t=${token}`;
+
+      return json(
+        { ok: true, id, type, createdAt: now, expiresAt, url: playUrl },
+        200,
+        CORS
+      );
+    }
+
+    // ---------------------------------------------------
+    // GET /game/:id/status?holderId=...
+    // (Needed by g.html refresh/timer)
+    // ---------------------------------------------------
+    const statusMatch = path.match(/^\/game\/([a-z0-9]+)\/status$/i);
+    if (request.method === "GET" && statusMatch) {
+      const id = statusMatch[1];
+      const holderId = String(url.searchParams.get("holderId") || "");
+
+      if (!holderId || holderId.length < 6) {
+        return json({ ok: false, error: "missing_holderId" }, 400, CORS);
       }
 
-      async function refresh() {
-        if (!gameId) return;
-        const holderId = getHolderId();
+      const row = await env.DB.prepare(
+        `SELECT id, expires_at, hop_count, last_holder
+         FROM games WHERE id = ?`
+      ).bind(id).first();
 
-        const res = await fetch(`${API}/game/${gameId}/status?holderId=${encodeURIComponent(holderId)}`);
-        let data = {};
-        try { data = await res.json(); } catch {}
-        if (!data.ok) return;
+      if (!row) return json({ ok: false, error: "not_found" }, 404, CORS);
 
-        if (data.expired) {
-          showExpiredResult(!!data.youHold, data.hopCount);
-          return;
-        }
+      const now = Date.now();
+      const expired = now >= row.expires_at;
 
-        titleEl.textContent = "InstaZombie";
-        if (data.youHold) {
-          mainEl.textContent = "🧟 You’re infected right now.";
-          noteEl.textContent = "Spread the cure (share) or cure yourself 🧪";
-          markPlayed();
-          updateRankUI();
-        } else {
-          mainEl.textContent = "🧟 You’re not infected right now.";
-          const played = gameId && localStorage.getItem(playedKey()) === "1";
-          noteEl.textContent = played
-            ? `You joined this outbreak • Global infected: ${globalPasses ?? "—"}`
-            : "Cure yourself or leave a note 👇";
-        }
+      return json(
+        {
+          ok: true,
+          id,
+          expired,
+          expiresAt: row.expires_at,
+          hopCount: row.hop_count,
+          youHold: row.last_holder === holderId && !!row.last_holder,
+        },
+        200,
+        CORS
+      );
+    }
 
-        // IMPORTANT: keep pass clickable even if not holder; backend enforces it
-        passBtn.disabled = false;
-        passBtn.textContent = data.youHold ? "🧟 Spread the cure" : "🧟 Spread the cure";
+    // ---------------------------------------------------
+    // POST /game/:id/claim  body: { holderId, token }
+    // Token must match current pass_token.
+    // Does NOT increment hop_count.
+    // ---------------------------------------------------
+    const claimMatch = path.match(/^\/game\/([a-z0-9]+)\/claim$/i);
+    if (request.method === "POST" && claimMatch) {
+      const id = claimMatch[1];
 
-        cureBtn.disabled = false;
-        startCountdown(data.expiresAt, data.hopCount);
+      let body = {};
+      try {
+        body = await request.json();
+      } catch {}
+
+      const holderId = String(body.holderId || "");
+      const token = String(body.token || "");
+
+      if (!holderId || holderId.length < 6) {
+        return json({ ok: false, error: "missing_holderId" }, 400, CORS);
+      }
+      if (!token) {
+        return json({ ok: false, error: "missing_token" }, 400, CORS);
       }
 
-      async function passItNow() {
-        const holderId = getHolderId();
-        passBtn.disabled = true;
+      const row = await env.DB.prepare(
+        `SELECT id, type, created_at, expires_at, hop_count, last_holder, pass_token
+         FROM games WHERE id = ?`
+      )
+        .bind(id)
+        .first();
 
-        const res = await fetch(`${API}/game/${gameId}/pass`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ holderId }),
-        });
+      if (!row) return json({ ok: false, error: "not_found" }, 404, CORS);
 
-        let data = {};
-        try { data = await res.json(); } catch {}
+      const now = Date.now();
+      const expired = now >= row.expires_at;
 
-        if (!data.ok) {
-          passBtn.disabled = false;
-          toast(data.error === "not_holder" ? "You’re not infected." : "Share failed.");
-          return;
-        }
-
-        if (data.expired) {
-          showExpiredResult(true, data.hopCount);
-          return;
-        }
-
-        const my = incMyPasses();
-        updateRankUI();
-        burstConfetti(50);
-
-        const newLink = data.url;
-
-        let shared = false;
-        if (navigator.share) {
-          try {
-            await navigator.share({
-              title: "InstaZombie 🧟",
-              text: "I’m infected… spread the cure 🧪",
-              url: newLink,
-            });
-            shared = true;
-          } catch {}
-        }
-
-        try {
-          await navigator.clipboard.writeText(newLink);
-          toast(shared ? "Shared + copied ✅" : "New link copied ✅");
-        } catch {
-          toast("Copy failed (manual).");
-        }
-
-        const newUrlObj = new URL(newLink);
-        const newToken = newUrlObj.searchParams.get("t");
-        const cur = new URL(location.href);
-        cur.searchParams.set("t", newToken);
-        history.replaceState({}, "", cur.toString());
-
-        loadStats();
-        await claim();
+      if (expired) {
+        return json(
+          {
+            ok: true,
+            id,
+            expired: true,
+            hopCount: row.hop_count,
+            youWin: row.last_holder === holderId && !!row.last_holder,
+          },
+          200,
+          CORS
+        );
       }
 
-      async function cureYourself() {
-        if (!gameId) return;
-        const holderId = getHolderId();
-
-        cureBtn.disabled = true;
-        const res = await fetch(`${API}/game/${gameId}/cure`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ holderId }),
-        });
-
-        let data = {};
-        try { data = await res.json(); } catch {}
-
-        cureBtn.disabled = false;
-
-        if (!data.ok) {
-          toast("Cure failed.");
-          return;
-        }
-
-        if (data.expired) {
-          toast("Too late. It’s over.");
-          refresh();
-          return;
-        }
-
-        incMyCures();
-        updateRankUI();
-        burstConfetti(26);
-        toast("Cured ✅ (for now)");
-
-        loadStats();
-        refresh();
+      // Old link (token rotated) => stale; do not change holder
+      if (token !== row.pass_token) {
+        return json(
+          {
+            ok: true,
+            id,
+            expired: false,
+            stale: true,
+            hopCount: row.hop_count,
+            expiresAt: row.expires_at,
+            youHold: row.last_holder === holderId,
+          },
+          200,
+          CORS
+        );
       }
 
-      // ---- Notes ticker ----
-      function timeAgo(ts) {
-        const d = Date.now() - ts;
-        const s = Math.floor(d / 1000);
-        if (s < 10) return "just now";
-        if (s < 60) return `${s}s ago`;
-        const m = Math.floor(s / 60);
-        if (m < 60) return `${m}m ago`;
-        const h = Math.floor(m / 60);
-        if (h < 24) return `${h}h ago`;
-        const days = Math.floor(h / 24);
-        return `${days}d ago`;
+      // Valid token => claim holder (no hop increment)
+      await env.DB.prepare(
+        `UPDATE games SET last_holder = ?, last_claim_at = ? WHERE id = ?`
+      )
+        .bind(holderId, now, id)
+        .run();
+
+      const updated = await env.DB.prepare(
+        `SELECT expires_at, hop_count, last_holder FROM games WHERE id = ?`
+      )
+        .bind(id)
+        .first();
+
+      return json(
+        {
+          ok: true,
+          id,
+          expired: false,
+          stale: false,
+          expiresAt: updated.expires_at,
+          hopCount: updated.hop_count,
+          youHold: updated.last_holder === holderId,
+        },
+        200,
+        CORS
+      );
+    }
+
+    // ---------------------------------------------------
+    // POST /game/:id/pass  body: { holderId }
+    // Only current holder can pass.
+    // Rotates pass_token + increments hop_count.
+    // Returns new URL with new token.
+    // ---------------------------------------------------
+    const passMatch = path.match(/^\/game\/([a-z0-9]+)\/pass$/i);
+    if (request.method === "POST" && passMatch) {
+      const id = passMatch[1];
+
+      let body = {};
+      try {
+        body = await request.json();
+      } catch {}
+
+      const holderId = String(body.holderId || "");
+      if (!holderId || holderId.length < 6) {
+        return json({ ok: false, error: "missing_holderId" }, 400, CORS);
       }
 
-      // ticker animation state
-      let tickerY = 0;
-      let tickerRAF = null;
-      let tickerHeight = 0;
+      const row = await env.DB.prepare(
+        `SELECT id, expires_at, hop_count, last_holder
+         FROM games WHERE id = ?`
+      )
+        .bind(id)
+        .first();
 
-      function startTicker() {
-        if (tickerRAF) return;
-        const speed = 0.18; // px per frame-ish (subtle)
-        function step() {
-          tickerY -= speed;
-          notesTrackEl.style.transform = `translateY(${tickerY}px)`;
+      if (!row) return json({ ok: false, error: "not_found" }, 404, CORS);
 
-          // when first item fully scrolled out -> move it to bottom
-          const first = notesTrackEl.firstElementChild;
-          if (first) {
-            const firstRect = first.getBoundingClientRect();
-            const viewport = notesTrackEl.parentElement.getBoundingClientRect();
-            if (firstRect.bottom < viewport.top + 6) {
-              notesTrackEl.appendChild(first);
-              tickerY += firstRect.height + 10; // keep continuity
-            }
-          }
-
-          tickerRAF = requestAnimationFrame(step);
-        }
-        tickerRAF = requestAnimationFrame(step);
+      const now = Date.now();
+      const expired = now >= row.expires_at;
+      if (expired) {
+        return json(
+          { ok: true, id, expired: true, hopCount: row.hop_count },
+          200,
+          CORS
+        );
       }
 
-      function stopTicker() {
-        if (tickerRAF) cancelAnimationFrame(tickerRAF);
-        tickerRAF = null;
+      if (row.last_holder !== holderId) {
+        return json({ ok: false, error: "not_holder" }, 403, CORS);
       }
 
-      function renderNotes(list) {
-        notesWrapEl.style.display = "block";
-        const arr = Array.isArray(list) ? list : [];
-        notesCountEl.textContent = `${arr.length} notes`;
+      const newToken = randomId(12);
 
-        notesTrackEl.innerHTML = "";
-        tickerY = 0;
-        notesTrackEl.style.transform = `translateY(0px)`;
+      await env.DB.prepare(
+        `UPDATE games
+         SET pass_token = ?, hop_count = hop_count + 1
+         WHERE id = ?`
+      )
+        .bind(newToken, id)
+        .run();
 
-        const use = arr.slice(0, 12);
+      // Increment global counter
+      await env.DB.prepare(
+        `UPDATE stats SET value = value + 1 WHERE key = 'total_passes'`
+      ).run();
 
-        if (use.length === 0) {
-          const line = document.createElement("div");
-          line.className = "noteLine";
-          line.textContent = "No notes yet. Be the first 🧠";
-          notesTrackEl.appendChild(line);
-          stopTicker();
-          return;
-        }
+      const updated = await env.DB.prepare(
+        `SELECT hop_count, expires_at FROM games WHERE id = ?`
+      )
+        .bind(id)
+        .first();
 
-        // We duplicate the list to allow continuous loop feel
-        const doubled = use.concat(use);
+      const newUrl = `https://playlinks.games/g.html?g=${id}&t=${newToken}`;
 
-        for (const m of doubled) {
-          const wrap = document.createElement("div");
+      return json(
+        {
+          ok: true,
+          id,
+          expired: false,
+          hopCount: updated.hop_count,
+          expiresAt: updated.expires_at,
+          url: newUrl,
+        },
+        200,
+        CORS
+      );
+    }
 
-          const line = document.createElement("div");
-          line.className = "noteLine";
-          line.textContent = m.body;
+    // ---------------------------------------------------
+    // GET /game/:id/messages?limit=...
+    // ---------------------------------------------------
+    const msgsGetMatch = path.match(/^\/game\/([a-z0-9]+)\/messages$/i);
+    if (request.method === "GET" && msgsGetMatch) {
+      const id = msgsGetMatch[1];
+      const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit") || 12)));
 
-          const meta = document.createElement("div");
-          meta.className = "noteMeta";
-          meta.textContent = `anonymous • ${timeAgo(Number(m.created_at || 0))}`;
+      const row = await env.DB.prepare(
+        `SELECT id, expires_at FROM games WHERE id = ?`
+      ).bind(id).first();
 
-          wrap.appendChild(line);
-          wrap.appendChild(meta);
+      if (!row) return json({ ok: false, error: "not_found" }, 404, CORS);
 
-          notesTrackEl.appendChild(wrap);
-        }
+      const items = await env.DB.prepare(
+        `SELECT id, created_at, author_holder, body
+         FROM messages
+         WHERE game_id = ?
+         ORDER BY created_at DESC
+         LIMIT ?`
+      ).bind(id, limit).all();
 
-        startTicker();
+      return json({ ok: true, messages: items.results || [] }, 200, CORS);
+    }
+
+    // ---------------------------------------------------
+    // POST /game/:id/message  body: { holderId, body }
+    // ---------------------------------------------------
+    const msgPostMatch = path.match(/^\/game\/([a-z0-9]+)\/message$/i);
+    if (request.method === "POST" && msgPostMatch) {
+      const id = msgPostMatch[1];
+
+      let body = {};
+      try { body = await request.json(); } catch {}
+
+      const holderId = String(body.holderId || "");
+      const text = String(body.body || "").trim();
+
+      if (!holderId || holderId.length < 6) {
+        return json({ ok: false, error: "missing_holderId" }, 400, CORS);
+      }
+      if (!text) {
+        return json({ ok: false, error: "empty_message" }, 400, CORS);
+      }
+      if (text.length > 120) {
+        return json({ ok: false, error: "message_too_long" }, 400, CORS);
       }
 
-      async function loadNotes() {
-        if (!gameId) return;
-        try {
-          const res = await fetch(`${API}/game/${gameId}/messages?limit=12`);
-          const data = await res.json();
-          if (data && data.ok) {
-            renderNotes(data.messages || []);
-          }
-        } catch {}
+      const game = await env.DB.prepare(
+        `SELECT expires_at FROM games WHERE id = ?`
+      ).bind(id).first();
+
+      if (!game) return json({ ok: false, error: "not_found" }, 404, CORS);
+
+      const now = Date.now();
+      if (now >= game.expires_at) {
+        return json({ ok: false, error: "expired" }, 400, CORS);
       }
 
-      async function sendNote() {
-        if (!gameId) return;
-        const holderId = getHolderId();
-        const text = String(noteInputEl.value || "").trim();
-        if (!text) return;
+      const mid = randomId(12);
 
-        noteSendEl.disabled = true;
+      await env.DB.prepare(
+        `INSERT INTO messages (id, game_id, created_at, author_holder, body, payment_status)
+         VALUES (?, ?, ?, ?, ?, ?)`
+      ).bind(mid, id, now, holderId, text, "free").run();
 
-        try {
-          const res = await fetch(`${API}/game/${gameId}/message`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ holderId, body: text }),
-          });
-          const data = await res.json();
-          if (!data.ok) {
-            toast(data.error === "message_too_long" ? "Too long (120 max)." : "Couldn’t send.");
-            noteSendEl.disabled = false;
-            return;
-          }
-          noteInputEl.value = "";
-          toast("Note posted ✅");
-          burstConfetti(18);
-          await loadNotes();
-        } catch {
-          toast("Couldn’t send.");
-        } finally {
-          noteSendEl.disabled = false;
-        }
+      return json({ ok: true, id: mid, createdAt: now }, 200, CORS);
+    }
+
+    // ---------------------------------------------------
+    // POST /game/:id/cure  body: { holderId }
+    // Anyone can "cure" (works even on stale links).
+    // Increments hop_count + global total_passes.
+    // DOES NOT change holder (non-serious, cannot stop chain).
+    // ---------------------------------------------------
+    const cureMatch = path.match(/^\/game\/([a-z0-9]+)\/cure$/i);
+    if (request.method === "POST" && cureMatch) {
+      const id = cureMatch[1];
+
+      let body = {};
+      try { body = await request.json(); } catch {}
+
+      const holderId = String(body.holderId || "");
+      if (!holderId || holderId.length < 6) {
+        return json({ ok: false, error: "missing_holderId" }, 400, CORS);
       }
 
-      noteSendEl.onclick = sendNote;
-      noteInputEl.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") sendNote();
-      });
+      const row = await env.DB.prepare(
+        `SELECT expires_at, hop_count FROM games WHERE id = ?`
+      ).bind(id).first();
 
-      homeBtn.onclick = () => { window.location.href = "https://playlinks.games/"; };
-      refreshBtn.onclick = () => { loadStats(); loadNotes(); refresh(); };
-      passBtn.onclick = passItNow;
-      cureBtn.onclick = cureYourself;
+      if (!row) return json({ ok: false, error: "not_found" }, 404, CORS);
 
-      // Init
-      loadStats();
-      loadNotes();
-      claim();
-      setInterval(loadNotes, 12000);
-    </script>
-  </body>
-</html>
+      const now = Date.now();
+      if (now >= row.expires_at) {
+        return json({ ok: true, id, expired: true, hopCount: row.hop_count }, 200, CORS);
+      }
+
+      await env.DB.prepare(
+        `UPDATE games SET hop_count = hop_count + 1 WHERE id = ?`
+      ).bind(id).run();
+
+      await env.DB.prepare(
+        `UPDATE stats SET value = value + 1 WHERE key = 'total_passes'`
+      ).run();
+
+      const updated = await env.DB.prepare(
+        `SELECT hop_count, expires_at FROM games WHERE id = ?`
+      ).bind(id).first();
+
+      return json({
+        ok: true,
+        id,
+        expired: false,
+        hopCount: updated.hop_count,
+        expiresAt: updated.expires_at
+      }, 200, CORS);
+    }
+
+    return json({ ok: false, error: "not_found", path }, 404, CORS);
+  },
+};
