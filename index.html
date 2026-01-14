@@ -34,7 +34,6 @@
         overflow-x: hidden;
       }
 
-      /* Mobile-first: treat as a "screen" */
       .screen {
         max-width: 440px;
         margin: 0 auto;
@@ -87,7 +86,6 @@
         line-height: 1.35;
       }
 
-      /* Cute mascot icon (same style as g.html) */
       .miniMascot {
         width: 62px;
         height: 62px;
@@ -149,7 +147,6 @@
         color: rgba(255,255,255,0.65);
       }
 
-      /* Subtle ad area placeholder (not obvious) */
       .quietSlot {
         margin-top: auto;
         height: 58px;
@@ -175,12 +172,12 @@
       </div>
 
       <div class="card hero">
-        <!-- mini mascot -->
+        <!-- mini mascot placeholder -->
         <svg class="miniMascot" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>
             <radialGradient id="pSkin" cx="35%" cy="30%" r="70%">
-              <stop offset="0" stop-color="#ffd6a6" stop-opacity="1"/>
-              <stop offset="1" stop-color="#c98a3a" stop-opacity="1"/>
+              <stop offset="0" stop-color="#c9ffd6" stop-opacity="1"/>
+              <stop offset="1" stop-color="#3aa56b" stop-opacity="1"/>
             </radialGradient>
             <linearGradient id="flame" x1="0" x2="1">
               <stop offset="0" stop-color="#00f5ff"/>
@@ -189,26 +186,22 @@
             </linearGradient>
           </defs>
 
-          <!-- flame -->
           <path d="M60 10 C50 25,75 30,58 45 C45 58,55 70,60 74 C70 67,78 58,74 45 C70 33,85 28,78 15 C73 6,64 6,60 10Z"
-                fill="url(#flame)" opacity="0.9"/>
-          <!-- potato -->
+                fill="url(#flame)" opacity="0.55"/>
           <path d="M25 62 C24 35,48 24,69 28 C92 32,102 50,94 73 C86 96,58 103,40 93 C30 86,26 76,25 62Z"
                 fill="url(#pSkin)" stroke="rgba(255,255,255,0.10)" stroke-width="2"/>
-          <!-- face -->
           <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,0.55)"/>
           <circle cx="73" cy="66" r="5" fill="rgba(0,0,0,0.55)"/>
           <path d="M53 78 C60 86,70 86,77 78" stroke="rgba(0,0,0,0.45)" stroke-width="5" stroke-linecap="round" fill="none"/>
-          <!-- blush -->
-          <circle cx="43" cy="75" r="6" fill="#ff2bd6" opacity="0.18"/>
-          <circle cx="82" cy="75" r="6" fill="#00f5ff" opacity="0.18"/>
+          <circle cx="43" cy="75" r="6" fill="#ff2bd6" opacity="0.12"/>
+          <circle cx="82" cy="75" r="6" fill="#00f5ff" opacity="0.12"/>
         </svg>
 
         <div>
-          <p class="heroTitle">Hot Potato 🔥</p>
+          <p class="heroTitle">InstaZombie 🧟</p>
           <p class="heroSub">
             Create a link, post it on your IG story.<br />
-            Whoever opens the latest link becomes infected.
+            Whoever opens the latest link gets infected.
           </p>
         </div>
       </div>
@@ -216,6 +209,7 @@
       <div class="card">
         <button class="btn" id="createHot">Start InstaZombie</button>
         <div style="height:10px"></div>
+        <button class="btnSecondary" disabled>More modes (soon)</button>
       </div>
 
       <div class="card">
@@ -227,10 +221,9 @@
           <button class="btnSecondary" id="open">Open</button>
         </div>
         <div id="status" class="status"></div>
-        <div class="hint">Tip: Paste link into IG Story (Link sticker) to play.</div>
+        <div class="hint">Tip: Paste link into IG Story (Link sticker) to spread it.</div>
       </div>
 
-      <!-- subtle reserved area (future use) -->
       <div class="quietSlot" aria-hidden="true"></div>
 
       <script>
@@ -256,7 +249,7 @@
           statusEl.textContent = `Created • Ends: ${new Date(data.expiresAt).toLocaleString()}`;
         }
 
-        document.getElementById("createHot").onclick = () => create("hotpotato");
+        document.getElementById("createHot").onclick = () => create("instazombie");
 
         document.getElementById("copy").onclick = async () => {
           if (!linkEl.value) return;
