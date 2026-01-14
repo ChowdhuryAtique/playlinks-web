@@ -528,6 +528,7 @@
       const noteEl = document.getElementById("note");
       const passBtn = document.getElementById("passBtn");
       const cureBtn = document.getElementById("cureBtn");
+      let cureUsedThisPage = false;
       const homeBtn = document.getElementById("homeBtn");
       const refreshBtn = document.getElementById("refreshBtn");
       const igHintEl = document.getElementById("igHint");
@@ -887,6 +888,11 @@
       }
 
       async function cureYourself() {
+          if (cureUsedThisPage) {
+            toast("You already used your cure 🧪");
+            return;
+          }
+
         if (!gameId) return;
         const holderId = getHolderId();
 
@@ -917,6 +923,9 @@
         updateRankUI();
         burstConfetti(26);
         toast("Cured ✅ (for now)");
+        cureUsedThisPage = true;
+        cureBtn.disabled = true;
+        cureBtn.textContent = "🧪 Cured";
 
         loadStats();
         // No need to “uninfect” — it’s just a fun action counter
