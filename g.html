@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
     />
-    <title>Hot Potato • PlayLinks</title>
+    <title>InstaZombie • PlayLinks</title>
     <style>
       :root {
         --bg: #070713;
@@ -233,55 +233,54 @@
         background: rgba(0,0,0,0.22);
       }
       .mapStage {
-  position: relative;
-  margin-top: 10px;
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(0,0,0,0.18);
-}
+        position: relative;
+        margin-top: 10px;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(0,0,0,0.18);
+      }
 
-/* keep it phone-friendly, preserve image ratio */
-.mapImg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
+      /* keep it phone-friendly, preserve image ratio */
+      .mapImg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
 
-/* overlay layer */
-.mapPins {
-  position: absolute;
-  inset: 0;
-}
+      /* overlay layer */
+      .mapPins {
+        position: absolute;
+        inset: 0;
+      }
 
-/* each potato emoji */
-.pin {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  font-size: 16px;
-  line-height: 1;
-  filter: drop-shadow(0 0 8px rgba(255,43,214,0.25));
-  user-select: none;
-  pointer-events: none;
-  opacity: 0.95;
-  animation: pinFloat 2.8s ease-in-out infinite;
-}
+      /* each zombie emoji */
+      .pin {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        font-size: 16px;
+        line-height: 1;
+        filter: drop-shadow(0 0 8px rgba(255,43,214,0.25));
+        user-select: none;
+        pointer-events: none;
+        opacity: 0.95;
+        animation: pinFloat 2.8s ease-in-out infinite;
+      }
 
-.pin:nth-child(3n) { animation-duration: 3.2s; }
-.pin:nth-child(4n) { animation-duration: 2.5s; }
+      .pin:nth-child(3n) { animation-duration: 3.2s; }
+      .pin:nth-child(4n) { animation-duration: 2.5s; }
 
-@keyframes pinFloat {
-  0% { transform: translate(-50%, -50%) translateY(0px); }
-  50% { transform: translate(-50%, -50%) translateY(-4px); }
-  100% { transform: translate(-50%, -50%) translateY(0px); }
-}
+      @keyframes pinFloat {
+        0% { transform: translate(-50%, -50%) translateY(0px); }
+        50% { transform: translate(-50%, -50%) translateY(-4px); }
+        100% { transform: translate(-50%, -50%) translateY(0px); }
+      }
 
-
-/* “hot” potatoes */
-.pin.hot {
-  font-size: 18px;
-  filter: drop-shadow(0 0 10px rgba(182,255,59,0.25));
-}
+      /* “hot” zombies */
+      .pin.hot {
+        font-size: 18px;
+        filter: drop-shadow(0 0 10px rgba(182,255,59,0.25));
+      }
 
       .metaTop {
         display: flex;
@@ -312,7 +311,8 @@
         line-height: 1.25;
       }
 
-      . {
+      /* FIXED: invalid selector in your file */
+      .mapWrap {
         margin-top: 10px;
         padding: 12px;
         border-radius: 16px;
@@ -335,21 +335,79 @@
         font-size: 11px;
         color: rgba(255,255,255,0.70);
       }
-      .mapGrid {
+
+      /* Notes (minimal, matches style) */
+      .notesWrap {
         margin-top: 10px;
-        display: grid;
-        grid-template-columns: repeat(20, 1fr);
-        gap: 2px;
-        image-rendering: pixelated;
+        padding: 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.10);
+        background: rgba(0,0,0,0.18);
       }
-      .px {
-        aspect-ratio: 1 / 1;
-        border-radius: 2px;
+      .notesHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .notesTitle {
+        font-size: 11px;
+        color: rgba(255,255,255,0.55);
+        letter-spacing: 0.7px;
+      }
+      .notesCount {
+        font-size: 11px;
+        color: rgba(255,255,255,0.70);
+      }
+      .notesList {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 140px;
+        overflow: auto;
+        padding-right: 2px;
+      }
+      .noteItem {
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.04);
+        border-radius: 12px;
+        padding: 10px;
+        font-size: 12px;
+        color: rgba(255,255,255,0.86);
+        line-height: 1.25;
+      }
+      .noteMeta {
+        margin-top: 6px;
+        font-size: 10px;
+        color: rgba(255,255,255,0.50);
+      }
+      .noteInputRow {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+      }
+      .noteInput {
+        flex: 1;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(0,0,0,0.25);
+        color: rgba(255,255,255,0.92);
+        font-size: 13px;
+        outline: none;
+        padding: 12px 12px;
+      }
+      .noteSend {
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.12);
         background: rgba(255,255,255,0.06);
+        color: rgba(255,255,255,0.86);
+        font-weight: 800;
+        padding: 12px 12px;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
       }
-      .land { background: rgba(0,245,255,0.10); }
-      .potatoDot { background: rgba(255,43,214,0.75); box-shadow: 0 0 10px rgba(255,43,214,0.30); }
-      .hotDot { background: rgba(182,255,59,0.78); box-shadow: 0 0 10px rgba(182,255,59,0.25); }
+      .noteSend:disabled { opacity: 0.5; cursor: not-allowed; }
 
       /* Confetti canvas */
       #confetti {
@@ -377,12 +435,12 @@
         <div class="subtitle" id="main">Opening…</div>
 
         <div class="mascotWrap">
-          <!-- Cute potato mascot (inline SVG so no assets needed) -->
+          <!-- Placeholder mascot (swap with your zombie asset later) -->
           <svg class="mascot" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
               <radialGradient id="pSkin2" cx="35%" cy="30%" r="70%">
-                <stop offset="0" stop-color="#ffd6a6"/>
-                <stop offset="1" stop-color="#c98a3a"/>
+                <stop offset="0" stop-color="#c9ffd6"/>
+                <stop offset="1" stop-color="#3aa56b"/>
               </radialGradient>
               <linearGradient id="flame2" x1="0" x2="1">
                 <stop offset="0" stop-color="#00f5ff"/>
@@ -391,29 +449,24 @@
               </linearGradient>
             </defs>
 
-            <!-- flame -->
+            <!-- aura -->
             <g class="flamePulse">
               <path d="M60 8 C49 25,78 30,58 47 C45 60,55 72,60 76 C70 69,79 60,74 47 C69 34,86 29,78 14 C72 4,64 4,60 8Z"
-                    fill="url(#flame2)" opacity="0.95"/>
-              <path d="M60 18 C55 28,70 30,60 41 C52 50,56 57,60 60 C66 55,68 49,66 41 C64 33,72 30,69 22 C67 18,62 16,60 18Z"
-                    fill="#ffffff" opacity="0.18"/>
+                    fill="url(#flame2)" opacity="0.55"/>
             </g>
 
-            <!-- potato -->
+            <!-- head -->
             <path d="M23 63 C22 35,47 22,70 27 C94 31,105 50,96 74 C87 99,57 106,38 95 C28 88,24 78,23 63Z"
                   fill="url(#pSkin2)" stroke="rgba(255,255,255,0.10)" stroke-width="2"/>
 
-            <!-- speckles -->
-            <circle cx="39" cy="58" r="2" fill="rgba(0,0,0,0.12)"/>
-            <circle cx="82" cy="55" r="2" fill="rgba(0,0,0,0.12)"/>
-            <circle cx="70" cy="86" r="2" fill="rgba(0,0,0,0.10)"/>
-
-            <!-- face -->
-            <circle cx="50" cy="67" r="5" fill="rgba(0,0,0,0.55)"/>
-            <circle cx="74" cy="67" r="5" fill="rgba(0,0,0,0.55)"/>
-            <path d="M53 79 C60 88,71 88,78 79" stroke="rgba(0,0,0,0.45)" stroke-width="5" stroke-linecap="round" fill="none"/>
-            <circle cx="43" cy="76" r="6" fill="#ff2bd6" opacity="0.18"/>
-            <circle cx="84" cy="76" r="6" fill="#00f5ff" opacity="0.18"/>
+            <!-- eyes -->
+            <circle cx="50" cy="67" r="6" fill="rgba(0,0,0,0.62)"/>
+            <circle cx="74" cy="67" r="6" fill="rgba(0,0,0,0.62)"/>
+            <!-- mouth -->
+            <path d="M53 80 C60 86,71 86,78 80" stroke="rgba(0,0,0,0.52)" stroke-width="5" stroke-linecap="round" fill="none"/>
+            <!-- cheeks -->
+            <circle cx="43" cy="76" r="6" fill="#ff2bd6" opacity="0.12"/>
+            <circle cx="84" cy="76" r="6" fill="#00f5ff" opacity="0.12"/>
           </svg>
         </div>
 
@@ -423,16 +476,16 @@
             <div class="timerValue" id="timer">—</div>
           </div>
           <div class="stat">
-            <div class="statLabel">PASSES</div>
+            <div class="statLabel">INFECTED</div>
             <div class="passesValue" id="passes">—</div>
           </div>
         </div>
 
-        <!-- New: global + rank -->
+        <!-- global + rank -->
         <div class="metaRow">
           <div class="metaCard">
             <div class="metaTop">
-              <div class="metaLabel">GLOBAL PASSES</div>
+              <div class="metaLabel">GLOBAL INFECTED</div>
               <div class="metaValue" id="globalPasses">—</div>
             </div>
             <div class="metaSub" id="globalSub">Across all games.</div>
@@ -442,27 +495,41 @@
               <div class="metaLabel">YOUR TITLE</div>
               <div class="rankValue" id="rankTitle">—</div>
             </div>
-            <div class="metaSub" id="rankSub">Earn titles by passing.</div>
+            <div class="metaSub" id="rankSub">Level up by spreading/cures.</div>
           </div>
         </div>
 
-        <!-- New: 8-bit map -->
-       <div class="mapWrap" id="mapWrap" style="display:none">
+        <!-- zombie map -->
+        <div class="mapWrap" id="mapWrap" style="display:none">
           <div class="mapHeader">
-            <div class="mapTitle">🌍 LIVE POTATO MAP</div>
+            <div class="mapTitle">🌍 LIVE ZOMBIE MAP</div>
             <div class="mapCount" id="mapCount">—</div>
           </div>
-        
+
           <div class="mapStage" id="mapStage" aria-hidden="true">
             <img class="mapImg" src="world-map.png" alt="" />
             <div class="mapPins" id="mapPins"></div>
           </div>
         </div>
 
+        <!-- notes -->
+        <div class="notesWrap" id="notesWrap" style="display:none">
+          <div class="notesHeader">
+            <div class="notesTitle">📝 SURVIVOR NOTES</div>
+            <div class="notesCount" id="notesCount">—</div>
+          </div>
+          <div class="notesList" id="notesList"></div>
+          <div class="noteInputRow">
+            <input class="noteInput" id="noteInput" maxlength="120" placeholder="Leave a note (anonymous)..." />
+            <button class="noteSend" id="noteSend">Send</button>
+          </div>
+        </div>
 
         <div style="height: 12px"></div>
 
-        <button class="btn" id="passBtn">🔁 Pass it now</button>
+        <button class="btn" id="passBtn">🧟 Spread the cure</button>
+        <div style="height: 10px"></div>
+        <button class="btnSecondary" id="cureBtn">🧪 Cure yourself</button>
         <div style="height: 10px"></div>
         <button class="btnSecondary" id="homeBtn">🏠 Main menu</button>
 
@@ -470,7 +537,6 @@
         <div class="igHint" id="igHint"></div>
       </div>
 
-      <!-- subtle reserved area (future use) -->
       <div class="quietSlot" aria-hidden="true"></div>
     </div>
 
@@ -489,19 +555,26 @@
       const passesEl = document.getElementById("passes");
       const noteEl = document.getElementById("note");
       const passBtn = document.getElementById("passBtn");
+      const cureBtn = document.getElementById("cureBtn");
       const homeBtn = document.getElementById("homeBtn");
       const igHintEl = document.getElementById("igHint");
       const toastEl = document.getElementById("toast");
 
-      // New UI refs
+      // UI refs
       const globalPassesEl = document.getElementById("globalPasses");
       const globalSubEl = document.getElementById("globalSub");
       const rankTitleEl = document.getElementById("rankTitle");
       const rankSubEl = document.getElementById("rankSub");
       const mapWrapEl = document.getElementById("mapWrap");
-      const mapStageEl = document.getElementById("mapStage");
       const mapPinsEl = document.getElementById("mapPins");
       const mapCountEl = document.getElementById("mapCount");
+
+      // Notes refs
+      const notesWrapEl = document.getElementById("notesWrap");
+      const notesListEl = document.getElementById("notesList");
+      const notesCountEl = document.getElementById("notesCount");
+      const noteInputEl = document.getElementById("noteInput");
+      const noteSendEl = document.getElementById("noteSend");
 
       gidPill.textContent = "ID: " + (gameId ? gameId : "—");
 
@@ -526,16 +599,17 @@
         return v;
       }
 
-      // -------- New: participation + titles (local-only, safe) --------
+      // Titles (kept simple, you can edit)
       const TITLES = [
-        "👀 Lurker", "🥔 Potato Tourist", "🔥 Warm Hands", "🧤 Quick Passer", "🧩 Chain Link",
-        "⚡ Speed Tapper", "🪄 Lucky Hands", "🎯 Clean Pass", "🧨 Chaos Spark", "🥷 Silent Passer",
-        "🧯 Fire Manager", "🕹️ Story Gamer", "🛡️ Chain Guardian", "🧠 Mind Games", "🧊 Ice Veins",
-        "🚀 Viral Fuel", "👑 Chain Royalty", "🐉 Flame Keeper", "🌪️ Storm Bringer", "🪐 Legend"
+        "🧟 Lvl 1 Zombie", "🧟 Lvl 2 Zombie", "🧟🔥 Lvl 3 Fire Zombie", "🧪🧤 Lvl 1 Quick Curer", "🧟🧩 Lvl 4 Super Spreader",
+        "🧟⚡ Lvl 5 Fast Zombie", "🧟🪄 Lvl 6 Lucky Zombie", "🧪🎯 Lvl 2 Clean Curer", "🧪🧨 Lvl 3 Zombie Destroyer", "🧪🥷 Lvl 4 Silent Curer",
+        "🧪🧯 Lvl 5 Extinguisher", "💀🕹️ Undead Gamer", "🛡️ Chain Guardian", "💀🧠 Mind Gamer", "💀🧊 Ice Veins",
+        "🏥🚀 Viral Stopper", "🏥👑 Chain Saver", "💀🐉 Venom Zombie", "💀🌪️ Storm Boss", "💀🪐 Legend"
       ];
 
       function playedKey() { return gameId ? `played_${gameId}` : "played_"; }
       function passesKey() { return gameId ? `myPasses_${gameId}` : "myPasses_"; }
+      function curesKey() { return gameId ? `myCures_${gameId}` : "myCures_"; }
 
       function markPlayed() {
         if (!gameId) return;
@@ -546,7 +620,6 @@
         if (!gameId) return 0;
         return Number(localStorage.getItem(passesKey()) || 0);
       }
-
       function incMyPasses() {
         if (!gameId) return 0;
         const n = getMyPasses() + 1;
@@ -555,18 +628,29 @@
         return n;
       }
 
+      function getMyCures() {
+        if (!gameId) return 0;
+        return Number(localStorage.getItem(curesKey()) || 0);
+      }
+      function incMyCures() {
+        if (!gameId) return 0;
+        const n = getMyCures() + 1;
+        localStorage.setItem(curesKey(), String(n));
+        markPlayed();
+        return n;
+      }
+
       function updateRankUI() {
-        const p = getMyPasses();
+        const p = getMyPasses() + getMyCures(); // reward both actions
         const idx = Math.min(TITLES.length - 1, p);
         rankTitleEl.textContent = TITLES[idx];
-        if (p === 0) rankSubEl.textContent = "Pass the potato to level up.";
-        else if (p === 1) rankSubEl.textContent = "Nice. You’re part of the chain.";
-        else rankSubEl.textContent = `You’ve passed ${p} time${p === 1 ? "" : "s"} in this game.`;
+        if (p === 0) rankSubEl.textContent = "Spread or cure to level up.";
+        else rankSubEl.textContent = `You’ve acted ${p} time${p === 1 ? "" : "s"} in this game.`;
       }
 
       updateRankUI();
 
-      // -------- New: real global passes + map --------
+      // Global infected + map
       let globalPasses = null;
 
       async function loadStats() {
@@ -576,7 +660,7 @@
           if (data && data.ok) {
             globalPasses = Number(data.totalPasses || 0);
             globalPassesEl.textContent = String(globalPasses);
-            globalSubEl.textContent = "Real passes across all games.";
+            globalSubEl.textContent = "Real activity across all games.";
             renderMap(globalPasses);
             return;
           }
@@ -585,7 +669,7 @@
         globalSubEl.textContent = "Couldn’t load stats.";
       }
 
-      // Pixel-map style A
+      // Seeded RNG
       function mulberry32(a) {
         return function () {
           let t = (a += 0x6D2B79F5);
@@ -605,67 +689,41 @@
       }
 
       function renderMap(total) {
-  mapWrapEl.style.display = "block";
+        mapWrapEl.style.display = "block";
 
-  // potatoes shown: same logic as before (cap for readability)
-  const potatoCount = Math.max(1, Math.min(30, Math.floor(total / 2) + 1));
-  mapCountEl.textContent = `${potatoCount} hot potatoes spotted`;
+        const count = Math.max(1, Math.min(30, Math.floor(total / 2) + 1));
+        mapCountEl.textContent = `${count} InstaZombies spotted`;
 
-  // Clear old pins
-  mapPinsEl.innerHTML = "";
+        mapPinsEl.innerHTML = "";
 
-  // Seeded randomness so it feels “stable-ish” per total/game
-  const seed = hashSeed(String(gameId || "x") + "_" + String(total));
-  const rand = mulberry32(seed);
+        const seed = hashSeed(String(gameId || "x") + "_" + String(total));
+        const rand = mulberry32(seed);
 
-  // Place pins inside the map image bounds
-  // We’ll avoid the very edges so emojis don't get clipped
-  const padX = 6;  // %
-  const padY = 10; // %
+        const padX = 6;
+        const padY = 10;
 
-  // Pick a few to be “hot”
-  const hotCount = Math.min(3, potatoCount);
+        const hotCount = Math.min(3, count);
 
-  // Basic “land-biased” distribution hack:
-  // Your map has oceans mostly blue; we *could* do pixel sampling,
-  // but IG webviews can be finicky. For MVP: we bias to the middle latitudes
-  // and away from extreme top/bottom to mimic continents.
-  function randomLandPoint() {
-    // x uniform
-    const x = padX + rand() * (100 - padX * 2);
+        function randomLandPoint() {
+          const x = padX + rand() * (100 - padX * 2);
+          const r1 = rand(), r2 = rand();
+          const yRaw = (r1 + r2) / 2;
+          const y = padY + yRaw * (100 - padY * 2);
+          return { x, y };
+        }
 
-    // y biased toward center band (continents are mostly here)
-    // blend 2 randoms for a bell-ish curve
-    const r1 = rand(), r2 = rand();
-    const yRaw = (r1 + r2) / 2; // 0..1, peaked around 0.5
-    const y = padY + yRaw * (100 - padY * 2);
+        for (let i = 0; i < count; i++) {
+          const { x, y } = randomLandPoint();
+          const pin = document.createElement("div");
+          pin.className = "pin" + (i < hotCount ? " hot" : "");
+          pin.textContent = i < hotCount ? "☠️" : "🧟";
+          pin.style.left = x + "%";
+          pin.style.top = y + "%";
+          mapPinsEl.appendChild(pin);
+        }
+      }
 
-    return { x, y };
-  }
-
-  // Create potatoes
-  for (let i = 0; i < potatoCount; i++) {
-    const { x, y } = randomLandPoint();
-
-    const pin = document.createElement("div");
-    pin.className = "pin" + (i < hotCount ? " hot" : "");
-
-    // Hot potatoes look more exciting
-    if (i < hotCount) {
-      pin.textContent = "🔥🥔";
-    } else {
-      pin.textContent = "🥔";
-    }
-
-    pin.style.left = x + "%";
-    pin.style.top = y + "%";
-
-    mapPinsEl.appendChild(pin);
-  }
-}
-
-
-      // -------- New: lightweight confetti --------
+      // Confetti
       const confettiCanvas = document.getElementById("confetti");
       const ctx = confettiCanvas.getContext("2d");
       function resizeConfetti() {
@@ -722,9 +780,7 @@
         requestAnimationFrame(frame);
       }
 
-      // ------------------------------------------------
-      // Existing game logic (kept as-is)
-      // ------------------------------------------------
+      // Game logic
       let countdownTimer = null;
 
       function formatRemaining(ms) {
@@ -761,27 +817,28 @@
       function showExpiredResult(youAreHolderAtEnd, hopCount) {
         titleEl.textContent = "Game over";
         passBtn.disabled = true;
+        cureBtn.disabled = true;
         passesEl.textContent = String(hopCount ?? "—");
         timerEl.textContent = "00h 00m 00s";
 
         if (youAreHolderAtEnd) {
-          mainEl.textContent = "🔥 You got burned.";
-          noteEl.textContent = `You were holding it at the end • Total passes: ${hopCount ?? "—"}`;
+          mainEl.textContent = "💀 You turned at the end.";
+          noteEl.textContent = `You were infected at the end • Total infected: ${hopCount ?? "—"}`;
         } else {
-          mainEl.textContent = "😮‍💨 You survived.";
-          noteEl.textContent = `Someone else got burned • Total passes: ${hopCount ?? "—"}`;
+          mainEl.textContent = "😮‍💨 You made it out.";
+          noteEl.textContent = `Someone else turned • Total infected: ${hopCount ?? "—"}`;
         }
       }
 
       function showStaleLink() {
-        titleEl.textContent = "Hot Potato";
-        mainEl.textContent = "🥔 You don’t have the potato.";
-        // New: make them feel part of something if they played
+        titleEl.textContent = "InstaZombie";
+        mainEl.textContent = "🧟 You’re not infected right now.";
         const played = gameId && localStorage.getItem(playedKey()) === "1";
         noteEl.textContent = played
-          ? "You were part of this chain. The potato is still moving…"
-          : "You need the latest story link to claim it.";
+          ? "You were part of this outbreak. It’s still spreading…"
+          : "You need the latest story link to get infected.";
         passBtn.disabled = true;
+        cureBtn.disabled = false; // category 2 can still cure + participate
       }
 
       async function claim() {
@@ -790,6 +847,7 @@
           mainEl.textContent = "Missing game id or token.";
           noteEl.textContent = "Ask the person who shared it to repost the latest link.";
           passBtn.disabled = true;
+          cureBtn.disabled = true;
           return;
         }
 
@@ -809,6 +867,7 @@
           mainEl.textContent = "Could not load game.";
           noteEl.textContent = data.error || "unknown_error";
           passBtn.disabled = true;
+          cureBtn.disabled = false;
           return;
         }
 
@@ -822,15 +881,15 @@
           return;
         }
 
-        // New: mark participation + confetti
         markPlayed();
         updateRankUI();
-        burstConfetti(70);
+        burstConfetti(55);
 
-        titleEl.textContent = "Hot Potato";
-        mainEl.textContent = "🔥 You are holding it right now.";
-        noteEl.textContent = "Pass it before the timer hits zero 😈";
+        titleEl.textContent = "InstaZombie";
+        mainEl.textContent = "🧟 You’re infected right now.";
+        noteEl.textContent = "Spread the cure (share) before the timer hits zero 😈";
         passBtn.disabled = false;
+        cureBtn.disabled = false;
 
         startCountdown(data.expiresAt, data.hopCount);
       }
@@ -849,21 +908,22 @@
           return;
         }
 
-        titleEl.textContent = "Hot Potato";
+        titleEl.textContent = "InstaZombie";
         if (data.youHold) {
-          mainEl.textContent = "🔥 You are holding it right now.";
-          noteEl.textContent = "Pass it before the timer hits zero 😈";
+          mainEl.textContent = "🧟 You’re infected right now.";
+          noteEl.textContent = "Spread the cure (share) or cure yourself 🧪";
           markPlayed();
           updateRankUI();
         } else {
-          mainEl.textContent = "🥔 You don’t have the potato.";
+          mainEl.textContent = "🧟 You’re not infected right now.";
           const played = gameId && localStorage.getItem(playedKey()) === "1";
           noteEl.textContent = played
-            ? `You were part of this chain • Global passes: ${globalPasses ?? "—"}`
-            : "Get the latest story link to claim it.";
+            ? `You joined this outbreak • Global infected: ${globalPasses ?? "—"}`
+            : "Cure yourself or leave a note 👇";
         }
 
-        passBtn.disabled = !data.youHold;
+        passBtn.disabled = !data.youHold; // holder-only share chain stays
+        cureBtn.disabled = false;         // always available
         startCountdown(data.expiresAt, data.hopCount);
       }
 
@@ -882,7 +942,7 @@
 
         if (!data.ok) {
           passBtn.disabled = false;
-          toast(data.error === "not_holder" ? "You’re not the holder." : "Pass failed.");
+          toast(data.error === "not_holder" ? "You’re not infected." : "Share failed.");
           return;
         }
 
@@ -891,23 +951,20 @@
           return;
         }
 
-        // New: local title progress
         const my = incMyPasses();
         updateRankUI();
 
-        // Confetti + title pop
         burstConfetti(55);
         toast(`Unlocked: ${TITLES[Math.min(TITLES.length - 1, my)]} ✨`);
 
         const newLink = data.url;
 
-        // Best-effort share + copy (2-in-1 feel)
         let shared = false;
         if (navigator.share) {
           try {
             await navigator.share({
-              title: "Hot Potato 🔥",
-              text: "You’re holding it… pass it 😈",
+              title: "InstaZombie 🧟",
+              text: "I’m infected… spread the cure 🧪",
               url: newLink,
             });
             shared = true;
@@ -918,8 +975,8 @@
           await navigator.clipboard.writeText(newLink);
           toast(shared ? "Shared + copied ✅" : "New link copied ✅");
           noteEl.textContent = shared
-            ? `Nice. Total passes: ${data.hopCount}`
-            : `Copied. Post to IG Story (Link sticker) • Total passes: ${data.hopCount}`;
+            ? `Nice. Total infected: ${data.hopCount}`
+            : `Copied. Post to IG Story (Link sticker) • Total infected: ${data.hopCount}`;
         } catch {
           noteEl.textContent = "Couldn’t auto-copy. Copy the link manually.";
         }
@@ -931,21 +988,149 @@
         cur.searchParams.set("t", newToken);
         history.replaceState({}, "", cur.toString());
 
-        // Stats might have incremented — refresh global count (best-effort)
         loadStats();
-
         await claim();
       }
+
+      async function cureYourself() {
+        if (!gameId) return;
+        const holderId = getHolderId();
+
+        cureBtn.disabled = true;
+        const res = await fetch(`${API}/game/${gameId}/cure`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ holderId }),
+        });
+
+        let data = {};
+        try { data = await res.json(); } catch {}
+
+        cureBtn.disabled = false;
+
+        if (!data.ok) {
+          toast("Cure failed.");
+          return;
+        }
+
+        if (data.expired) {
+          toast("Too late. It’s over.");
+          refresh();
+          return;
+        }
+
+        incMyCures();
+        updateRankUI();
+        burstConfetti(32);
+        toast("Cured ✅ (for now)");
+
+        loadStats();
+        refresh();
+      }
+
+      // Notes (messages)
+      function timeAgo(ts) {
+        const d = Date.now() - ts;
+        const s = Math.floor(d / 1000);
+        if (s < 10) return "just now";
+        if (s < 60) return `${s}s ago`;
+        const m = Math.floor(s / 60);
+        if (m < 60) return `${m}m ago`;
+        const h = Math.floor(m / 60);
+        if (h < 24) return `${h}h ago`;
+        const days = Math.floor(h / 24);
+        return `${days}d ago`;
+      }
+
+      function renderNotes(list) {
+        notesWrapEl.style.display = "block";
+        const arr = Array.isArray(list) ? list : [];
+        notesCountEl.textContent = `${arr.length} notes`;
+
+        notesListEl.innerHTML = "";
+        if (arr.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "noteItem";
+          empty.textContent = "No notes yet. Be the first 🧠";
+          notesListEl.appendChild(empty);
+          return;
+        }
+
+        for (const m of arr) {
+          const item = document.createElement("div");
+          item.className = "noteItem";
+          item.textContent = m.body;
+
+          const meta = document.createElement("div");
+          meta.className = "noteMeta";
+          meta.textContent = `anonymous • ${timeAgo(Number(m.created_at || 0))}`;
+
+          item.appendChild(meta);
+          notesListEl.appendChild(item);
+        }
+      }
+
+      async function loadNotes() {
+        if (!gameId) return;
+        try {
+          const res = await fetch(`${API}/game/${gameId}/messages?limit=12`);
+          const data = await res.json();
+          if (data && data.ok) {
+            renderNotes(data.messages || []);
+          }
+        } catch {}
+      }
+
+      async function sendNote() {
+        if (!gameId) return;
+        const holderId = getHolderId();
+        const text = String(noteInputEl.value || "").trim();
+        if (!text) return;
+
+        noteSendEl.disabled = true;
+
+        try {
+          const res = await fetch(`${API}/game/${gameId}/message`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ holderId, body: text }),
+          });
+          const data = await res.json();
+          if (!data.ok) {
+            toast(data.error === "message_too_long" ? "Too long (120 max)." : "Couldn’t send.");
+            noteSendEl.disabled = false;
+            return;
+          }
+          noteInputEl.value = "";
+          toast("Note posted ✅");
+          burstConfetti(24);
+          await loadNotes();
+        } catch {
+          toast("Couldn’t send.");
+        } finally {
+          noteSendEl.disabled = false;
+        }
+      }
+
+      noteSendEl.onclick = sendNote;
+      noteInputEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") sendNote();
+      });
 
       homeBtn.onclick = () => {
         window.location.href = "https://playlinks.games/";
       };
 
       passBtn.onclick = passItNow;
+      cureBtn.onclick = cureYourself;
 
-      // Start: load stats + claim
+      // Start: load stats + notes + claim
       loadStats();
+      loadNotes();
       claim();
+
+      // light refresh loop for notes (optional, safe)
+      setInterval(loadNotes, 12000);
     </script>
   </body>
 </html>
